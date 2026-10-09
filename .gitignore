@@ -1,0 +1,35 @@
+# Transient Booley state — do not commit. `booley init` keeps these entries.
+tmp/
+flow-reports/
+/logs/
+/.baseline-wt-*/
+tickets/board/
+tickets/state/
+tickets/waiver-candidates/
+tickets/logs/
+tickets/locks/
+.interactive_logs/
+.runtime/
+runtime/
+worktrees/
+__pycache__/
+*.pyc
+SETUP-REPORT.md
+FEEDBACK-REPORT.md
+
+# Local Project Setup notes and run logs.
+SETUP-PLAN.md
+findings.jsonl
+*.log
+reports/
+
+# Synthesis reports written next to the adapters.
+synth/report/
+
+# Simulations run inside runs/sim ([flows.sim].run_cwd in booley.toml), which
+# collects firmware images, plusargs, and waveforms. Track only the empty
+# directory so it exists in a fresh clone.
+/runs/*
+!/runs/sim/
+/runs/sim/*
+!/runs/sim/.gitkeep

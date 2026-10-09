@@ -1,0 +1,33 @@
+From db7cb0ee5dd9a8976d5a9b27ea9be68a4778ddf2 Mon Sep 17 00:00:00 2001
+From: "A.R." <boldaxolotl@proton.me>
+Date: Fri, 9 Oct 2026 00:00:00 +0000
+Subject: [PATCH 4/4] Let synthesis substitute the ECC operand RAM
+
+ecc_arith_unit instantiates ecc_ram_tdp_file, a 64x384 dual-port register
+file. Without a memory macro, ASIC synthesis turns it into about 25k
+flops. When the USER_ECC_RAM_TDP macro is defined, instantiate the module
+it names instead, with the same parameters and ports.
+
+The macro is undefined by default, so simulation and every existing build
+are unchanged. The Booley project's synth_caliptra Target defines it to a
+synthesis-only timing surrogate.
+---
+ src/ecc/rtl/ecc_arith_unit.sv | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/ecc/rtl/ecc_arith_unit.sv b/src/ecc/rtl/ecc_arith_unit.sv
+index 9357aa40..6485c504 100644
+--- a/src/ecc/rtl/ecc_arith_unit.sv
++++ b/src/ecc/rtl/ecc_arith_unit.sv
+@@ -111,7 +111,11 @@ module ecc_arith_unit
+     // Memory interface
+     // 
+     //----------------------------------------------------------------
++`ifdef USER_ECC_RAM_TDP
++    `USER_ECC_RAM_TDP #(
++`else
+     ecc_ram_tdp_file #(
++`endif
+         .ADDR_WIDTH(OPR_ADDR_WIDTH),
+         .DATA_WIDTH(REG_SIZE)
+         )

@@ -1,0 +1,30 @@
+From d7995db4ce867716e82787b8eb99d125842892e6 Mon Sep 17 00:00:00 2001
+From: "A.R." <boldaxolotl@proton.me>
+Date: Fri, 9 Oct 2026 00:00:00 +0000
+Subject: [PATCH 3/4] Add a default arm to the AXI DMA read-request count case
+
+The rd_req_count_for_payload_next case already lists all eight selector
+values, so the default arm is unreachable for 2-state inputs and behavior
+is unchanged. Without it, the slang-based Yosys frontend does not detect
+the case as full and infers a hold-value combinational loop
+(https://github.com/povik/sv-elab/issues/387). Needed only for ASIC
+synthesis; simulation and lint pass without it.
+---
+ src/axi/rtl/axi_dma_ctrl.sv | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/axi/rtl/axi_dma_ctrl.sv b/src/axi/rtl/axi_dma_ctrl.sv
+index 80d4ef38..ff3e583b 100644
+--- a/src/axi/rtl/axi_dma_ctrl.sv
++++ b/src/axi/rtl/axi_dma_ctrl.sv
+@@ -651,6 +651,10 @@ import kv_defines_pkg::*;
+             3'b101: rd_req_count_for_payload_next = rd_req_count_for_payload - 1;
+             3'b110: rd_req_count_for_payload_next = rd_req_count_for_payload; // Don't queue new requests when current requests are pending
+             3'b111: rd_req_count_for_payload_next = rd_req_count_for_payload - 1; // Don't queue new requests when current requests are pending
++            // Unreachable for 2-state selectors (all 8 values are listed above). Without it the
++            // yosys-slang frontend does not detect the case as full and emits a hold-value
++            // combinational loop (povik/sv-elab#387).
++            default: rd_req_count_for_payload_next = rd_req_count_for_payload;
+         endcase
+     end
+ 

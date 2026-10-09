@@ -1,0 +1,211 @@
+From 14bb69aa8de7e15a807b6cae4852578a105fbfa9 Mon Sep 17 00:00:00 2001
+From: "A.R." <boldaxolotl@proton.me>
+Date: Fri, 9 Oct 2026 00:00:00 +0000
+Subject: [PATCH 1/4] Fix firmware test build errors
+
+Several firmware tests in src/integration/test_suites fail to compile or
+link at this revision with GCC 14 or later (Booley's RISC-V Sandbox ships
+xPack GCC 15.2):
+
+- iccm_hash.h: declare wait_pcr5_ready(), which iccm_hash.c defines and
+  the directed ICCM-hash tests call.
+- pv_hash_reset: define the interrupt-counter struct its ISR header
+  expects, and use the renamed SHA512_GEN_PCR_HASH_NONCE_0 register.
+- smoke_test_hmac_errortrigger, smoke_test_kv_ecc_flow1/2: these files
+  call srand() without including <stdlib.h>, an implicit declaration
+  that GCC 14+ rejects. The tests draw from xorshift32(), so seed it with
+  xorshift32_init() instead. smoke_test_kv_crypto_flow2 gets the same
+  seeding change.
+- smoke_test_kv_crypto_flow2: give ML-DSA keygen a full-size private-key
+  buffer instead of passing a single word where an array is expected.
+- smoke_test_kv_ecdh_flow: add the missing void return type to
+  kv_aes_flow().
+- smoke_test_hw_config, smoke_test_ras: make service_soc_ifc_notif_intr()
+  static inline; a plain C99 inline function has no external definition,
+  so any call the compiler does not inline fails to link.
+
+Test-only change; no RTL is touched.
+---
+ .../test_suites/libs/iccm_hash/iccm_hash.h    |  4 ++++
+ .../test_suites/pv_hash_reset/caliptra_isr.h  | 24 +++++++++++++++++++
+ .../test_suites/pv_hash_reset/pv_hash_reset.c |  3 ++-
+ .../smoke_test_hmac_errortrigger.c            |  2 +-
+ .../smoke_test_hw_config/caliptra_isr.h       |  2 +-
+ .../smoke_test_kv_crypto_flow2.c              |  4 ++--
+ .../smoke_test_kv_ecc_flow1.c                 |  2 +-
+ .../smoke_test_kv_ecc_flow2.c                 |  2 +-
+ .../smoke_test_kv_ecdh_flow.c                 |  2 +-
+ .../test_suites/smoke_test_ras/caliptra_isr.h |  2 +-
+ 10 files changed, 38 insertions(+), 9 deletions(-)
+
+diff --git a/src/integration/test_suites/libs/iccm_hash/iccm_hash.h b/src/integration/test_suites/libs/iccm_hash/iccm_hash.h
+index d7a32559..3d9b4e07 100644
+--- a/src/integration/test_suites/libs/iccm_hash/iccm_hash.h
++++ b/src/integration/test_suites/libs/iccm_hash/iccm_hash.h
+@@ -48,6 +48,10 @@ uint8_t acquire_sha_lock(void);
+ // Returns 1 on success, 0 on timeout.
+ uint8_t wait_pcr4_ready(void);
+ 
++// Wait for PCR5 to be written by the extend FSM.
++// Returns 1 on success, 0 on timeout.
++uint8_t wait_pcr5_ready(void);
++
+ // Run an ICCM hash with the default 64-word pattern. Writes data to ICCM
+ // (the ICCM-write snoop engages the hash on the first write), asserts
+ // iccm_lock, waits for PCR4. Returns 1 on success, 0 on timeout.
+diff --git a/src/integration/test_suites/pv_hash_reset/caliptra_isr.h b/src/integration/test_suites/pv_hash_reset/caliptra_isr.h
+index f07a60bc..30ddc46b 100644
+--- a/src/integration/test_suites/pv_hash_reset/caliptra_isr.h
++++ b/src/integration/test_suites/pv_hash_reset/caliptra_isr.h
+@@ -31,6 +31,30 @@
+ #include <stdint.h>
+ #include "printf.h"
+ 
++typedef struct {
++    uint32_t doe_error;
++    uint32_t doe_notif;
++    uint32_t ecc_error;
++    uint32_t ecc_notif;
++    uint32_t hmac_error;
++    uint32_t hmac_notif;
++    uint32_t kv_error;
++    uint32_t kv_notif;
++    uint32_t sha512_error;
++    uint32_t sha512_notif;
++    uint32_t sha256_error;
++    uint32_t sha256_notif;
++    uint32_t soc_ifc_error;
++    uint32_t soc_ifc_notif;
++    uint32_t sha512_acc_error;
++    uint32_t sha512_acc_notif;
++    uint32_t abr_error;
++    uint32_t abr_notif;
++    uint32_t axi_dma_error;
++    uint32_t axi_dma_notif;
++} caliptra_intr_received_s;
++extern volatile caliptra_intr_received_s cptra_intr_rcv;
++
+ //extern volatile uint32_t hmac_intr_status;
+ 
+ //////////////////////////////////////////////////////////////////////////////
+diff --git a/src/integration/test_suites/pv_hash_reset/pv_hash_reset.c b/src/integration/test_suites/pv_hash_reset/pv_hash_reset.c
+index 1a1c6eac..ba2748aa 100644
+--- a/src/integration/test_suites/pv_hash_reset/pv_hash_reset.c
++++ b/src/integration/test_suites/pv_hash_reset/pv_hash_reset.c
+@@ -23,6 +23,7 @@
+ #include "keyvault.h"
+ #include "sha512.h"
+ 
++volatile caliptra_intr_received_s cptra_intr_rcv = {0};
+ volatile uint32_t* stdout           = (uint32_t *)STDOUT;
+ volatile uint32_t  intr_count = 0;
+ volatile uint32_t  rst_count __attribute__((section(".dccm.persistent"))) = 0;
+@@ -130,7 +131,7 @@ void main() {
+ 
+ 
+         sha_poll_gen_hash_ready();
+-        lsu_write_32(CLP_SHA512_REG_SHA512_GEN_PCR_HASH_NONCE,0x12345678);
++        lsu_write_32(CLP_SHA512_REG_SHA512_GEN_PCR_HASH_NONCE_0,0x12345678);
+         sha_gen_hash_start();
+         
+         rst_count++;
+diff --git a/src/integration/test_suites/smoke_test_hmac_errortrigger/smoke_test_hmac_errortrigger.c b/src/integration/test_suites/smoke_test_hmac_errortrigger/smoke_test_hmac_errortrigger.c
+index 5d47415e..5b6ab729 100644
+--- a/src/integration/test_suites/smoke_test_hmac_errortrigger/smoke_test_hmac_errortrigger.c
++++ b/src/integration/test_suites/smoke_test_hmac_errortrigger/smoke_test_hmac_errortrigger.c
+@@ -41,7 +41,7 @@ volatile caliptra_intr_received_s cptra_intr_rcv = {0};
+ 
+ void main() {
+ 
+-    srand(time);
++    xorshift32_init(time);
+ 
+     //Call interrupt init
+     init_interrupts();
+diff --git a/src/integration/test_suites/smoke_test_hw_config/caliptra_isr.h b/src/integration/test_suites/smoke_test_hw_config/caliptra_isr.h
+index fc35a1b4..509045ca 100644
+--- a/src/integration/test_suites/smoke_test_hw_config/caliptra_isr.h
++++ b/src/integration/test_suites/smoke_test_hw_config/caliptra_isr.h
+@@ -126,7 +126,7 @@ inline void service_soc_ifc_error_intr() {
+     }
+ }
+ 
+-inline void service_soc_ifc_notif_intr () {
++static inline void service_soc_ifc_notif_intr () {
+     uint32_t * reg = (uint32_t *) (CLP_SOC_IFC_REG_INTR_BLOCK_RF_NOTIF_INTERNAL_INTR_R);
+     uint32_t sts = *reg;
+     /* Write 1 to Clear the pending interrupt */
+diff --git a/src/integration/test_suites/smoke_test_kv_crypto_flow2/smoke_test_kv_crypto_flow2.c b/src/integration/test_suites/smoke_test_kv_crypto_flow2/smoke_test_kv_crypto_flow2.c
+index 614e1d5b..7784c79c 100644
+--- a/src/integration/test_suites/smoke_test_kv_crypto_flow2/smoke_test_kv_crypto_flow2.c
++++ b/src/integration/test_suites/smoke_test_kv_crypto_flow2/smoke_test_kv_crypto_flow2.c
+@@ -517,7 +517,7 @@ void kv_mldsa(uint8_t seed_id){
+     for (int i = 0; i < MLDSA87_PUBKEY_SIZE; i++)
+         pubkey[i] = mldsa_pubkey[MLDSA87_PUBKEY_SIZE-1-i];
+ 
+-    uint32_t privkey; //no returnable when seed came from KV
++    uint32_t privkey[MLDSA87_PRIVKEY_SIZE] = {0}; // no readable key when seed came from KV
+ 
+     mldsa_keygen_flow(seed, entropy, privkey, pubkey);
+     mldsa_zeroize();
+@@ -544,7 +544,7 @@ void kv_mldsa(uint8_t seed_id){
+ void random_generator(uint8_t *uds_id, uint8_t *fe_id, uint8_t *hek_id, uint8_t *cdi_idevid_id, uint8_t *ecc_seed_id, uint8_t *mldsa_seed_id, uint8_t *privkey_id, uint8_t *cdi_ldevid_id){
+ 
+     /* Intializes random number generator */  //TODO    
+-    srand(time);
++    xorshift32_init(time);
+ 
+     //Pick random entries for DOE to use, never pick slot 23 it causes DOE FSM to hang
+     *uds_id = xorshift32() % 23;  // UDS kv id
+diff --git a/src/integration/test_suites/smoke_test_kv_ecc_flow1/smoke_test_kv_ecc_flow1.c b/src/integration/test_suites/smoke_test_kv_ecc_flow1/smoke_test_kv_ecc_flow1.c
+index 28b106ce..230040be 100644
+--- a/src/integration/test_suites/smoke_test_kv_ecc_flow1/smoke_test_kv_ecc_flow1.c
++++ b/src/integration/test_suites/smoke_test_kv_ecc_flow1/smoke_test_kv_ecc_flow1.c
+@@ -194,7 +194,7 @@ void main(){
+     init_interrupts();
+ 
+     /* Intializes random number generator */  //TODO    
+-    srand(time);
++    xorshift32_init(time);
+ 
+     ecc_io seed;
+     ecc_io nonce;
+diff --git a/src/integration/test_suites/smoke_test_kv_ecc_flow2/smoke_test_kv_ecc_flow2.c b/src/integration/test_suites/smoke_test_kv_ecc_flow2/smoke_test_kv_ecc_flow2.c
+index c2465946..c0b2238c 100644
+--- a/src/integration/test_suites/smoke_test_kv_ecc_flow2/smoke_test_kv_ecc_flow2.c
++++ b/src/integration/test_suites/smoke_test_kv_ecc_flow2/smoke_test_kv_ecc_flow2.c
+@@ -194,7 +194,7 @@ void main(){
+     init_interrupts();
+ 
+     /* Intializes random number generator */  //TODO    
+-    srand(time);
++    xorshift32_init(time);
+ 
+     ecc_io seed;
+     ecc_io nonce;
+diff --git a/src/integration/test_suites/smoke_test_kv_ecdh_flow/smoke_test_kv_ecdh_flow.c b/src/integration/test_suites/smoke_test_kv_ecdh_flow/smoke_test_kv_ecdh_flow.c
+index 8a97f12e..4cf6d235 100644
+--- a/src/integration/test_suites/smoke_test_kv_ecdh_flow/smoke_test_kv_ecdh_flow.c
++++ b/src/integration/test_suites/smoke_test_kv_ecdh_flow/smoke_test_kv_ecdh_flow.c
+@@ -121,7 +121,7 @@ void kv_hmac512_flow(uint8_t block_id, uint8_t tag_id){
+     hmac_zeroize();
+ }
+ 
+-kv_aes_flow(uint8_t aes_kv_id, const char *plaintext_str, const char *ciphertext_str){
++void kv_aes_flow(uint8_t aes_kv_id, const char *plaintext_str, const char *ciphertext_str){
+     VPRINTF(LOW, "\n\nEncryption in ECB mode\n");
+     aes_op_e op = AES_ENC;
+     aes_mode_e mode = AES_ECB;
+diff --git a/src/integration/test_suites/smoke_test_ras/caliptra_isr.h b/src/integration/test_suites/smoke_test_ras/caliptra_isr.h
+index beec354d..c9cbc141 100644
+--- a/src/integration/test_suites/smoke_test_ras/caliptra_isr.h
++++ b/src/integration/test_suites/smoke_test_ras/caliptra_isr.h
+@@ -132,7 +132,7 @@ inline void service_soc_ifc_error_intr() {
+     }
+ }
+ 
+-inline void service_soc_ifc_notif_intr () {
++static inline void service_soc_ifc_notif_intr () {
+     uint32_t * reg = (uint32_t *) (CLP_SOC_IFC_REG_INTR_BLOCK_RF_NOTIF_INTERNAL_INTR_R);
+     uint32_t sts = *reg;
+     /* Write 1 to Clear the pending interrupt */

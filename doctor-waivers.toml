@@ -1,0 +1,7 @@
+version = 1
+
+[[waiver]]
+check = "flow.synth-deep-warning"
+subject = "synth_caliptra"
+reason = "Nangate45 full-repair prototype meets setup on every clock (Booley 0.3.0: clk 20 ns +6.700 ns, jtag_tck 100 ns +49.309 ns). WARN comes from -0.242 ns hold slack, because hold repair is deliberately disabled and clocks are ideal (no CTS), plus six upstream VeeR multiple-driver diagnostics from an early Yosys check that are absent from the final netlist. Details are in synth/ASIC-REPORT.md. Hold closure, CTS, CDC signoff, and SRAM macros are outside this port."
+expires = 2026-12-31

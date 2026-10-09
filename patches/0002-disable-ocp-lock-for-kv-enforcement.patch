@@ -1,0 +1,21 @@
+From a2915b092eb28ebc6562285950aea5b9834cbaf8 Mon Sep 17 00:00:00 2001
+From: "A.R." <boldaxolotl@proton.me>
+Date: Fri, 9 Oct 2026 00:00:00 +0000
+Subject: [PATCH 2/4] Disable OCP lock mode for directed_kv_enforcement
+
+The test checks key-vault rules that assume OCP lock mode is off. Pass
++CLP_OCP_LOCK_DIS so the result does not depend on the testbench default.
+---
+ .../directed_kv_enforcement/directed_kv_enforcement.yml         | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/integration/test_suites/directed_kv_enforcement/directed_kv_enforcement.yml b/src/integration/test_suites/directed_kv_enforcement/directed_kv_enforcement.yml
+index 5d017a20..9236a81d 100644
+--- a/src/integration/test_suites/directed_kv_enforcement/directed_kv_enforcement.yml
++++ b/src/integration/test_suites/directed_kv_enforcement/directed_kv_enforcement.yml
+@@ -15,3 +15,5 @@
+ ---
+ seed: 1
+ testname: directed_kv_enforcement
++plusargs:
++  - +CLP_OCP_LOCK_DIS
