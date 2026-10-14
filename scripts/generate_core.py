@@ -207,7 +207,13 @@ def main() -> None:
                 "flow": "sim",
                 "flow_options": {
                     "tool": "verilator",
-                    "booley": {"doctor": ["sim"]},
+                    "booley": {
+                        "doctor": ["sim"],
+                        "coverage": {
+                            "reset_included": True,
+                            "custom_main_hooks": ["write_hook"],
+                        },
+                    },
                     # Defines, timescale, and -Wno-* waivers mirror the
                     # upstream Verilator build in tools/scripts/Makefile.
                     "verilator_options": [

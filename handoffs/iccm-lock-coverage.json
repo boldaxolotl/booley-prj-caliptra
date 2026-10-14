@@ -1,0 +1,29 @@
+{
+  "file": "src/riscv_core/veer_el2/rtl/ifu/el2_ifu_iccm_mem.sv",
+  "test": "iccm_lock",
+  "reset_included": true,
+  "source": "/work/.booley_project/.interactive_logs/4cbcc88fd4a6/.runtime/flow-reports/sim/3/targets/sim_caliptra/campaign/work-items/0001-531d893f5eacd4d3/attempts/0001-afa9f1c0-5158-4c01-bc47-dd7d662e6db4/coverage-campaign/native/raw/001-iccm_lock.dat",
+  "metrics": {
+    "expr": {
+      "covered": 103,
+      "total": 147,
+      "percent": 70.07
+    },
+    "branch": {
+      "covered": 10,
+      "total": 14,
+      "percent": 71.43
+    },
+    "line": {
+      "covered": 1,
+      "total": 1,
+      "percent": 100.0
+    },
+    "toggle": {
+      "covered": 2284,
+      "total": 2612,
+      "percent": 87.44
+    }
+  },
+  "limitation": "Native artifact extraction only; Booley coverage report conversion failed with COV_POINT_LIMIT. Line coverage is one instrumented block, not every source line."
+}

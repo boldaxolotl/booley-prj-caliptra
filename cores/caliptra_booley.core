@@ -156,6 +156,10 @@ targets:
       booley:
         doctor:
         - sim
+        coverage:
+          reset_included: true
+          custom_main_hooks:
+          - write_hook
       verilator_options:
       - +define+RV_OPENSOURCE
       - +define+CALIPTRA_INTERNAL_TRNG

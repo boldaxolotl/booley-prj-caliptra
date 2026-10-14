@@ -1,3 +1,6 @@
+#if VM_COVERAGE
+#include "booley_coverage.h"
+#endif
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2019 Western Digital Corporation or its affiliates.
 //
@@ -80,6 +83,9 @@ int main(int argc, char** argv) {
   tfp->close();
 #endif
 
+#if VM_COVERAGE
+  booley_coverage_write();
+#endif
   std::cout << "\nVerilatorTB: End of sim" << std::endl;
   exit(EXIT_SUCCESS);
 

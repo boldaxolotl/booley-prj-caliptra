@@ -56,6 +56,14 @@ def main() -> None:
     source = root / "src/integration/tb/test_caliptra_top_tb.cpp"
     output = root / ".booley_project/generated/test_caliptra_top_tb.cpp"
     text = source.read_text()
+    # Booley injects the coverage bridge only into coverage builds.
+    text = '#if VM_COVERAGE\n#include "booley_coverage.h"\n#endif\n' + text
+    text = replace_once(
+        text,
+        '  std::cout << "\\nVerilatorTB: End of sim"',
+        '#if VM_COVERAGE\n  booley_coverage_write();\n#endif\n'
+        '  std::cout << "\\nVerilatorTB: End of sim"',
+    )
 
     # Headers for std::ifstream and std::vector used by PLUSARGS_MERGE.
     text = text.replace(
