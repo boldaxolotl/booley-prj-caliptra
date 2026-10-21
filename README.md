@@ -110,6 +110,7 @@ in `.core` files are relative to the Caliptra root.
 | `cores/caliptra_synth.core` | `synth_caliptra` Target |
 | `cores/caliptra_ecc.core` | Block-level ECC Targets `sim_ecc`, `lint_ecc`, `synth_ecc_top`, `synth_ecc_fau` |
 | `sim/ecc_top_tb_main.cpp` | Verilator `main()` for `sim_ecc`, with trace and coverage support |
+| `goalsets/` | Goalsets for Goal Mode, including `ecc-area.md` (shrink the ECC engine) |
 | `cores/caliptra_doctor_selftest.core` | Deliberately broken fixture that proves `booley doctor --deep` catches lint failures |
 | `generated/test_caliptra_top_tb.cpp` | Upstream Verilator `main()` with per-test plusargs and Booley trace-file support (generated) |
 | `scripts/` | Generators for the files above, plus `build_firmware.sh`, which builds each test's firmware before simulation |

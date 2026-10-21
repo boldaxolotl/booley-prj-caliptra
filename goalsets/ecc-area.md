@@ -1,0 +1,200 @@
+# Goalset: ecc-area
+
+This file belongs to the Project: edit and extend it freely.
+`booley init` creates the starter Goalsets but never this one.
+
+Shrink the secp384 ECC engine (`ecc_top`, sources in `src/ecc/rtl/`) by
+15 % without slowing it down, breaking it, or weakening its security
+countermeasures. When a session enters Goal Mode with this Goalset, the agent
+translates it into the entry tool's Goal arguments below, unchanged. Every Goal
+is mandatory.
+
+## Goals
+
+- `SYNTH:synth_ecc_top`: `ecc_top` area at most 426.2 kGE (−15 % of the
+  501.4 kGE baseline) and Fmax at least 169.2 MHz (−5 % of 178.1 MHz).
+- `SYNTH:synth_ecc_fau`: the field arithmetic unit `ecc_fau` (Montgomery
+  multiplier and modular adder) at most 178.8 kGE (−15 % of 210.3 kGE) and
+  Fmax at least 207.0 MHz (−5 % of 217.9 MHz).
+- `CYCLE_COUNT:sim_ecc` for each of `keygen`, `sign`, `verify` and `ecdh`:
+  at most 10 % more cycles than at the Goal base commit (baseline 719,675 /
+  736,978 / 960,405 / 717,421 cycles).
+- `SIM:sim_ecc`: every Test passes on all 10 shipped vectors (`keygen`,
+  `sign`, `verify`, `ecdh`, `otf_reset`).
+- `COVERAGE:sim_ecc`: on `ECC_normal_test+one` (all four operations on the
+  first vector), line, branch and toggle coverage of the Target's RTL stay
+  within 2 points of the baseline (98.58 / 77.19 / 88.98 %).
+- `MUTATION:sim_ecc`: of 10 mutants of the ECC RTL below, the testbench
+  detects at least 9.
+- `LINT:lint_ecc`: the ECC RTL lints clean.
+- `REVIEW:rtl_bugs` on the ECC RTL below and `REVIEW:tb_quality` on the
+  ECC testbench: both finish `clean` (no open findings).
+
+The RTL you may change is the hand-written ECC RTL listed in the `MUTATION`
+and `REVIEW:rtl_bugs` Goals: everything in `src/ecc/rtl/` except the generated
+register block (`ecc_reg.sv`, `ecc_reg_pkg.sv`) and the operand RAM
+(`ecc_ram_tdp_file.sv`). You may also improve the testbench
+`src/ecc/tb/ecc_top_tb.sv`, for example to detect more mutants, but not weaken
+any existing check.
+
+## Off-limits
+
+These are part of the task's definition, not levers. Changing any of them
+fails the review even when every other Goal is met:
+
+- SHA-512 masking in the HMAC-DRBG path and its randomness.
+- Scalar blinding and `RND_SIZE`.
+- Freshness of `lambda` and `masking_rnd`: every operation draws new values.
+- Zeroize and the asynchronous resets: everything that is cleared today
+  stays cleared.
+- Range checks on inputs (privkey, R, S, public key). `pk_chk` may be
+  re-encoded but not dropped.
+- The KeyVault and PCR-signing paths.
+- The register map (`ecc_reg.rdl` and its generated `ecc_reg.sv`,
+  `ecc_reg_pkg.sv`).
+- The operand RAM (`ecc_ram_tdp_file.sv`), its synthesis stand-in
+  (`.booley/synth/ecc_ram_tdp_timing_surrogate.sv`) and the
+  `USER_ECC_RAM_TDP` hook in `ecc_arith_unit.sv`.
+- The synthesis recipe: the `synth_ecc_top` and `synth_ecc_fau` Targets in
+  `.booley/cores/caliptra_ecc.core` (flow options, ABC recipe, PPA profile,
+  flattening, parameters), the wrapper `.booley/synth/ecc_fau_synth_wrapper.sv`,
+  and the 20 ns clock in `.booley/synth/ecc_top.sdc`. Keep `ecc_fau`'s ports and
+  parameters so the wrapper still instantiates it as `ecc_arith_unit` does.
+- The `sim_ecc` and `lint_ecc` Targets, `tests.toml`, and the test vectors.
+
+## Notes
+
+- One full `sim_ecc` run takes about 6 minutes; `--test <name>+one` runs one
+  vector in under a minute. A hung design waits for `[flows.sim].timeout_ms`
+  (2 hours, sized for the chip); pass `timeout_ms: 600000` to `sim` calls.
+- `synth_ecc_top` takes about 14 minutes and `synth_ecc_fau` about 2.
+- A coverage run of `ECC_normal_test+one` takes about 13 minutes;
+  coverage is about 16 times slower than plain simulation.
+
+## Goal arguments
+
+```json
+[
+  {
+    "family": "SYNTH",
+    "target": "synth_ecc_top",
+    "thresholds": {"area_kge_max": 426.2, "fmax_mhz_min": 169.2},
+    "origin": "ecc-area"
+  },
+  {
+    "family": "SYNTH",
+    "target": "synth_ecc_fau",
+    "thresholds": {"area_kge_max": 178.8, "fmax_mhz_min": 207.0},
+    "origin": "ecc-area"
+  },
+  {
+    "family": "CYCLE_COUNT",
+    "target": "sim_ecc",
+    "test": "keygen",
+    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "origin": "ecc-area"
+  },
+  {
+    "family": "CYCLE_COUNT",
+    "target": "sim_ecc",
+    "test": "sign",
+    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "origin": "ecc-area"
+  },
+  {
+    "family": "CYCLE_COUNT",
+    "target": "sim_ecc",
+    "test": "verify",
+    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "origin": "ecc-area"
+  },
+  {
+    "family": "CYCLE_COUNT",
+    "target": "sim_ecc",
+    "test": "ecdh",
+    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "origin": "ecc-area"
+  },
+  {
+    "family": "SIM",
+    "target": "sim_ecc",
+    "origin": "ecc-area"
+  },
+  {
+    "family": "COVERAGE",
+    "target": "sim_ecc",
+    "tests": ["ECC_normal_test+one"],
+    "metrics": {"line": 96.58, "branch": 75.18, "toggle": 86.97},
+    "origin": "ecc-area"
+  },
+  {
+    "family": "MUTATION",
+    "target": "sim_ecc",
+    "scope": [
+      "src/ecc/rtl/ecc_add_sub_mod_alter.sv",
+      "src/ecc/rtl/ecc_adder.sv",
+      "src/ecc/rtl/ecc_arith_unit.sv",
+      "src/ecc/rtl/ecc_defines_pkg.sv",
+      "src/ecc/rtl/ecc_dsa_ctrl.sv",
+      "src/ecc/rtl/ecc_dsa_sequencer.sv",
+      "src/ecc/rtl/ecc_dsa_uop_pkg.sv",
+      "src/ecc/rtl/ecc_fau.sv",
+      "src/ecc/rtl/ecc_hmac_drbg_interface.sv",
+      "src/ecc/rtl/ecc_montgomerymultiplier.sv",
+      "src/ecc/rtl/ecc_mult_dsp.sv",
+      "src/ecc/rtl/ecc_params_pkg.sv",
+      "src/ecc/rtl/ecc_pe.sv",
+      "src/ecc/rtl/ecc_pe_final.sv",
+      "src/ecc/rtl/ecc_pe_first.sv",
+      "src/ecc/rtl/ecc_pm_ctrl.sv",
+      "src/ecc/rtl/ecc_pm_sequencer.sv",
+      "src/ecc/rtl/ecc_pm_uop_pkg.sv",
+      "src/ecc/rtl/ecc_scalar_blinding.sv",
+      "src/ecc/rtl/ecc_top.sv"
+    ],
+    "total": 10,
+    "min_detected": 9,
+    "origin": "ecc-area"
+  },
+  {
+    "family": "LINT",
+    "target": "lint_ecc",
+    "origin": "ecc-area"
+  },
+  {
+    "family": "REVIEW",
+    "review": "rtl_bugs",
+    "verdict": "clean",
+    "paths": [
+      "src/ecc/rtl/ecc_add_sub_mod_alter.sv",
+      "src/ecc/rtl/ecc_adder.sv",
+      "src/ecc/rtl/ecc_arith_unit.sv",
+      "src/ecc/rtl/ecc_defines_pkg.sv",
+      "src/ecc/rtl/ecc_dsa_ctrl.sv",
+      "src/ecc/rtl/ecc_dsa_sequencer.sv",
+      "src/ecc/rtl/ecc_dsa_uop_pkg.sv",
+      "src/ecc/rtl/ecc_fau.sv",
+      "src/ecc/rtl/ecc_hmac_drbg_interface.sv",
+      "src/ecc/rtl/ecc_montgomerymultiplier.sv",
+      "src/ecc/rtl/ecc_mult_dsp.sv",
+      "src/ecc/rtl/ecc_params_pkg.sv",
+      "src/ecc/rtl/ecc_pe.sv",
+      "src/ecc/rtl/ecc_pe_final.sv",
+      "src/ecc/rtl/ecc_pe_first.sv",
+      "src/ecc/rtl/ecc_pm_ctrl.sv",
+      "src/ecc/rtl/ecc_pm_sequencer.sv",
+      "src/ecc/rtl/ecc_pm_uop_pkg.sv",
+      "src/ecc/rtl/ecc_scalar_blinding.sv",
+      "src/ecc/rtl/ecc_top.sv"
+    ],
+    "origin": "ecc-area"
+  },
+  {
+    "family": "REVIEW",
+    "review": "tb_quality",
+    "verdict": "clean",
+    "paths": ["src/ecc/tb/ecc_top_tb.sv"],
+    "origin": "ecc-area"
+  }
+]
+```
