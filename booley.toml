@@ -2,7 +2,7 @@
 name = "Caliptra RTL"
 
 [agent]
-provider = "codex"
+provider = "claude"
 auth = "subscription"
 
 [sandbox]

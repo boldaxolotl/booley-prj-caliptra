@@ -31,7 +31,7 @@ git switch -c booley
 git am .booley/patches/*.patch
 ```
 
-The default agent provider is Codex. To use Claude, change `[agent].provider`
+The default agent provider is Claude. To use Codex, change `[agent].provider`
 in `.booley/booley.toml` before initialization.
 
 Initialize the project on the host:
