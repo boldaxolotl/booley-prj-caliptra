@@ -1,6 +1,6 @@
 """Generate the FuseSoC cores for Caliptra from the upstream VF filelists.
 
-Writes two CAPI=2 cores under ``.booley_project/cores/``:
+Writes two CAPI=2 cores under ``.booley/cores/``:
 
 - ``caliptra_rtl.core`` (``local:caliptra:rtl:1``): the reusable design RTL
   and its include headers, from ``src/integration/config/caliptra_top.vf``.
@@ -14,7 +14,7 @@ Writes two CAPI=2 cores under ``.booley_project/cores/``:
 Rerun after an upstream filelist, include-directory, or ``.vlt`` change.
 From the Caliptra checkout root:
 
-    python3 .booley_project/scripts/generate_core.py
+    python3 .booley/scripts/generate_core.py
 
 Requires PyYAML.
 """
@@ -25,10 +25,10 @@ from pathlib import Path
 
 import yaml
 
-# The Caliptra checkout: this file lives at <root>/.booley_project/scripts/.
+# The Caliptra checkout: this file lives at <root>/.booley/scripts/.
 ROOT = Path(__file__).resolve().parents[2]
-COMMON_OUT = ROOT / ".booley_project/cores/caliptra_rtl.core"
-ADAPTER_OUT = ROOT / ".booley_project/cores/caliptra_booley.core"
+COMMON_OUT = ROOT / ".booley/cores/caliptra_rtl.core"
+ADAPTER_OUT = ROOT / ".booley/cores/caliptra_booley.core"
 
 
 def resolve(line: str) -> str:
@@ -172,7 +172,7 @@ def main() -> None:
             "tb_cpp": {
                 "files": [
                     {
-                        ".booley_project/generated/test_caliptra_top_tb.cpp": {
+                        ".booley/generated/test_caliptra_top_tb.cpp": {
                             "file_type": "cppSource"
                         }
                     },

@@ -33,3 +33,19 @@ synth/report/
 !/runs/sim/
 /runs/sim/*
 !/runs/sim/.gitkeep
+
+# Added by booley init — transient Booley state.
+goals/*/
+!goals/history/
+
+# Added by booley init — transient Booley state.
+/.directory-relocation.json
+mcp-tool-reports/
+reviewer-state/
+.managed/
+/reviewer-evidence/
+/findings.jsonl
+/findings.jsonl.tmp
+/BOOLEY-FEEDBACK.md
+/setup-evidence/
+/PARITY-REPORT.md

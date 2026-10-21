@@ -17,7 +17,7 @@ each with its blocker, so they remain visible.
 Rerun after an upstream test-manifest change (tests added, removed, or
 renamed, or an L0 regression list edit). From the Caliptra checkout root:
 
-    python3 .booley_project/scripts/generate_tests.py
+    python3 .booley/scripts/generate_tests.py
 
 Requires PyYAML.
 """
@@ -117,7 +117,7 @@ HEADER_LINES = [
     "# directed_kv_monitor_neg (352): key-vault flush/comprehensive failures during fault injection.",
     "# smoke_test_kv_boot_flow_monitor (2): FMC/RT boot-flow monotonicity.",
     "# Passing firmware sentinels do not waive these assertion failures.",
-    'select = "+CLP_REGRESSION"',
+    'select = "+CLP_REGRESSION={name}"',
     "tests = [",
 ]
 
@@ -140,7 +140,7 @@ def l0_suite_order(root: Path) -> list[str]:
 
 
 def main() -> None:
-    # The Caliptra checkout: this file lives at <root>/.booley_project/scripts/.
+    # The Caliptra checkout: this file lives at <root>/.booley/scripts/.
     root = Path(__file__).resolve().parents[2]
     suite_root = root / "src/integration/test_suites"
     ci = l0_suite_order(root)
@@ -161,7 +161,7 @@ def main() -> None:
     ordered = [name for name in candidate_order if name not in UNQUALIFIED_REASONS]
     assert len(ordered) == EXPECTED_REGISTERED
 
-    out = root / ".booley_project/tests.toml"
+    out = root / ".booley/tests.toml"
     lines = list(HEADER_LINES)
     lines += [f'  "{name}",' for name in ordered]
     lines += [

@@ -17,7 +17,7 @@ The Adams Bridge memory signal list is hardcoded below (see ABR_MEMORIES).
 Rerun after an upstream change to the ``caliptra_top`` ports or to any of the
 interfaces above. From the Caliptra checkout root:
 
-    python3 .booley_project/synth/generate_wrapper.py
+    python3 .booley/synth/generate_wrapper.py
 
 Standard library only.
 """
@@ -27,12 +27,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-# The Caliptra checkout: this file lives at <root>/.booley_project/synth/.
+# The Caliptra checkout: this file lives at <root>/.booley/synth/.
 ROOT = Path(__file__).resolve().parents[2]
 TOP_PATH = ROOT / "src/integration/rtl/caliptra_top.sv"
 AXI_IF_PATH = ROOT / "src/axi/rtl/axi_if.sv"
 EL2_MEM_IF_PATH = ROOT / "src/riscv_core/veer_el2/rtl/lib/el2_mem_if.sv"
-OUTPUT_PATH = ROOT / ".booley_project/synth/caliptra_synth_wrapper.sv"
+OUTPUT_PATH = ROOT / ".booley/synth/caliptra_synth_wrapper.sv"
 
 # Marks the end of the parameter list and the start of the port list in
 # caliptra_top.sv. The leading "    (\n" is skipped to reach the first port.

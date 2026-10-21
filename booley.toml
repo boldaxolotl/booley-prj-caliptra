@@ -19,8 +19,8 @@ enabled = true
 enabled = true
 pass_sentinels = ["* TESTCASE PASSED", "* TEST PASSED"]
 fail_sentinels = ["* TESTCASE FAILED", "* TEST FAILED", "ERROR! FW attempted to end the simulation"]
-run_cwd = ".booley_project/runs/sim"
-pre_run_commands = ['bash "$BOOLEY_PROJECT_DIR/scripts/build_firmware.sh"']
+run_cwd = ".booley/runs/sim"
+pre_run_commands = ['bash "$BOOLEY_DIR/scripts/build_firmware.sh"']
 timeout_ms = 7200000
 
 [flows.lint]

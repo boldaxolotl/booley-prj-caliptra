@@ -5,7 +5,7 @@ description: Doctor-only Caliptra lint fail-path fixture
 filesets:
   lint_selftest_bad:
     files:
-      - .booley_project/selftest/lint/bad.sv: {file_type: systemVerilogSource}
+      - .booley/selftest/lint/bad.sv: {file_type: systemVerilogSource}
 
 targets:
   lint_selftest_bad:

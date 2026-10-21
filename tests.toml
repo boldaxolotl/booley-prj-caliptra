@@ -9,7 +9,7 @@
 # directed_kv_monitor_neg (352): key-vault flush/comprehensive failures during fault injection.
 # smoke_test_kv_boot_flow_monitor (2): FMC/RT boot-flow monotonicity.
 # Passing firmware sentinels do not waive these assertion failures.
-select = "+CLP_REGRESSION"
+select = "+CLP_REGRESSION={name}"
 tests = [
   "iccm_lock",
   "smoke_test_veer",

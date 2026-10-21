@@ -2,11 +2,11 @@
 # Build and stage the firmware for one Caliptra simulation test.
 #
 # Called by Booley before each sim run, via booley.toml:
-#   [flows.sim].pre_run_commands = ['bash "$BOOLEY_PROJECT_DIR/scripts/build_firmware.sh"']
+#   [flows.sim].pre_run_commands = ['bash "$BOOLEY_DIR/scripts/build_firmware.sh"']
 #
 # Environment (set by Booley):
 #   BOOLEY_TEST_NAME     test to run: a YAML manifest stem from tests.toml
-#   BOOLEY_PROJECT_ROOT  the Caliptra checkout (not .booley_project)
+#   BOOLEY_PROJECT_ROOT  the Caliptra checkout (not .booley)
 #   BOOLEY_RUN_CWD       directory the simulator runs in ([flows.sim].run_cwd)
 #
 # Outputs in BOOLEY_RUN_CWD:

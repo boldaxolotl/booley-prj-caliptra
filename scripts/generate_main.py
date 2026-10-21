@@ -1,7 +1,7 @@
 """Generate the Booley variant of upstream's Verilator testbench main.
 
 Reads ``src/integration/tb/test_caliptra_top_tb.cpp`` and writes
-``.booley_project/generated/test_caliptra_top_tb.cpp`` with two patches:
+``.booley/generated/test_caliptra_top_tb.cpp`` with two patches:
 
 1. Per-test plusargs: before ``Verilated::commandArgs`` the main reads
    ``.booley_test_plusargs`` from the run directory (written by
@@ -16,7 +16,7 @@ so an upstream edit to those lines fails loudly instead of being skipped.
 Rerun after an upstream change to the TB main. From the Caliptra checkout
 root:
 
-    python3 .booley_project/scripts/generate_main.py
+    python3 .booley/scripts/generate_main.py
 
 Standard library only.
 """
@@ -51,10 +51,10 @@ def replace_once(text: str, old: str, new: str) -> str:
 
 
 def main() -> None:
-    # The Caliptra checkout: this file lives at <root>/.booley_project/scripts/.
+    # The Caliptra checkout: this file lives at <root>/.booley/scripts/.
     root = Path(__file__).resolve().parents[2]
     source = root / "src/integration/tb/test_caliptra_top_tb.cpp"
-    output = root / ".booley_project/generated/test_caliptra_top_tb.cpp"
+    output = root / ".booley/generated/test_caliptra_top_tb.cpp"
     text = source.read_text()
     # Booley injects the coverage bridge only into coverage builds.
     text = '#if VM_COVERAGE\n#include "booley_coverage.h"\n#endif\n' + text

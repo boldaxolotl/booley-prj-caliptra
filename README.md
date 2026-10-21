@@ -21,18 +21,18 @@ git clone https://github.com/chipsalliance/caliptra-rtl
 cd caliptra-rtl
 git checkout e379800c5467379386f96a9a51a539bd662b608a
 git submodule update --init --recursive
-git clone https://github.com/boldaxolotl/booley-prj-caliptra .booley_project
+git clone https://github.com/boldaxolotl/booley-prj-caliptra .booley
 ```
 
 Apply the small Caliptra patches this project needs (see [Patches](#patches)):
 
 ```bash
 git switch -c booley
-git am .booley_project/patches/*.patch
+git am .booley/patches/*.patch
 ```
 
 The default agent provider is Codex. To use Claude, change `[agent].provider`
-in `.booley_project/booley.toml` before initialization.
+in `.booley/booley.toml` before initialization.
 
 Initialize the project on the host:
 
@@ -91,7 +91,7 @@ each commit message repeats its explanation.
 
 ## Repository layout
 
-This directory lives at `.booley_project/` inside the Caliptra checkout. Paths
+This directory lives at `.booley/` inside the Caliptra checkout. Paths
 in `.core` files are relative to the Caliptra root.
 
 | Path | Purpose |
@@ -117,10 +117,10 @@ The generated files track the tested Caliptra commit. After moving to another
 commit, rerun the generators from the Caliptra root and review the diff:
 
 ```bash
-python3 .booley_project/scripts/generate_core.py
-python3 .booley_project/scripts/generate_tests.py
-python3 .booley_project/scripts/generate_main.py
-python3 .booley_project/synth/generate_wrapper.py
+python3 .booley/scripts/generate_core.py
+python3 .booley/scripts/generate_tests.py
+python3 .booley/scripts/generate_main.py
+python3 .booley/synth/generate_wrapper.py
 ```
 
 `generate_tests.py` asserts the upstream test counts, so it fails loudly when
@@ -128,7 +128,7 @@ the test suite changes. Update its exclusion lists after checking the new tests.
 
 ## Notes
 
-- The project runs in stealth mode: `.booley_project/` is its own Git
+- The project runs in stealth mode: `.booley/` is its own Git
   repository, and Caliptra's history gains only the patch commits above.
 - The `reviewer` Specialist is disabled in `booley.toml`; delete the
   `[specialists.reviewer]` table to enable it.

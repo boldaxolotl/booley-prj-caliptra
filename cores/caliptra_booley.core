@@ -134,7 +134,7 @@ filesets:
         file_type: vlt
   tb_cpp:
     files:
-    - .booley_project/generated/test_caliptra_top_tb.cpp:
+    - .booley/generated/test_caliptra_top_tb.cpp:
         file_type: cppSource
     - src/integration/test_suites/libs/jtagdpi/jtagdpi.c:
         file_type: cSource

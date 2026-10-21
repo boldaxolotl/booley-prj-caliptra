@@ -6,7 +6,7 @@ Apply them from the Caliptra checkout root:
 
 ```bash
 git switch -c booley
-git am .booley_project/patches/*.patch
+git am .booley/patches/*.patch
 ```
 
 None of them changes RTL behavior. Patches 0001 and 0002 let the registered

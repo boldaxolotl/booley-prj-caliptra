@@ -1,5 +1,5 @@
 # Marker: FuseSoC's library scanner (and Booley's discover_cores) skip any
-# directory carrying this file. .booley_project/ holds transient git
+# directory carrying this file. .booley/ holds transient git
 # worktrees whose .core copies share the project's VLNV — without this
 # marker FuseSoC's recursive --cores-root scan would let a stale worktree
 # core shadow the repo-root source and silently build the wrong RTL.

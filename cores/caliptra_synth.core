@@ -7,19 +7,19 @@ filesets:
     - local:caliptra:rtl:1
   synth_wrapper:
     files:
-    - .booley_project/synth/caliptra_synth_wrapper.sv:
+    - .booley/synth/caliptra_synth_wrapper.sv:
         file_type: systemVerilogSource
   tech_cells:
     files:
-    - .booley_project/synth/nangate45_icg.sv:
+    - .booley/synth/nangate45_icg.sv:
         file_type: systemVerilogSource
   synth_memory:
     files:
-    - .booley_project/synth/ecc_ram_tdp_timing_surrogate.sv:
+    - .booley/synth/ecc_ram_tdp_timing_surrogate.sv:
         file_type: systemVerilogSource
   constraints:
     files:
-    - .booley_project/synth/caliptra.sdc:
+    - .booley/synth/caliptra.sdc:
         file_type: SDC
 targets:
   synth_caliptra:
