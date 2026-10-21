@@ -138,8 +138,7 @@ the test suite changes. Update its exclusion lists after checking the new tests.
 
 - The project runs in stealth mode: `.booley/` is its own Git
   repository, and Caliptra's history gains only the patch commits above.
-- The `reviewer` Specialist is disabled in `booley.toml`; delete the
-  `[specialists.reviewer]` table to enable it.
+- The `reviewer` Specialist is enabled; REVIEW Goals need it.
 - Synthesis results are prototype numbers (ideal clocks, no SRAM macros, no
   hold repair). The Booley 0.3.0 rerun completed in 42 minutes with the
   reviewed SDC fanout workaround for
