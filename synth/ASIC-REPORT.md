@@ -2,9 +2,12 @@
 
 ## Result
 
-Measured on 2026-10-09 with Booley 0.3.0 and OpenROAD
+Measured on 2026-10-21 with Booley 0.3.0 (58d9b4b69) and OpenROAD
 `26Q3-2927-gc4d317e4fa`, on the README's tested Caliptra commit `e379800c`
-with all four patches in `patches/`.
+with all four patches in `patches/`, using the corrected ECC RAM stand-in
+(see [Synthesis adapters](#synthesis-adapters)). The earlier 2026-10-09 figure
+of 3,259.6 kGE used a stand-in that let synthesis delete about 149 kGE of ECC
+logic and is superseded.
 
 The managed `synth_caliptra` flow runs Yosys synthesis and the full OpenROAD
 pipeline: placement, `repair_design`, tie-fanout repair, detailed placement,
@@ -21,24 +24,23 @@ multiple-driver diagnostics remain (see [Diagnostics](#diagnostics)).
 
 | Measure | Value |
 | --- | ---: |
-| Physical report cells | 1,595,938 |
-| Area (OpenROAD post-optimization) | 3,259.6 kGE |
-| `clk` setup slack (20 ns) | +6.700 ns |
-| `clk` register-to-register slack | +6.767 ns (≈76 MHz) |
-| `jtag_tck` setup slack (100 ns) | +49.309 ns |
-| Hold slack (`clk` / `jtag_tck`) | −0.242 / −0.242 ns |
-| Elapsed time | 2,546.2 s (42.4 min) |
-| Peak process-tree RSS | 16,344.5 MiB |
+| Physical report cells | 1,693,932 |
+| Area (OpenROAD post-optimization) | 3,406.9 kGE |
+| `clk` setup slack (20 ns) | +6.365 ns |
+| `clk` register-to-register slack | +6.365 ns (≈73 MHz) |
+| `jtag_tck` setup slack (100 ns) | +49.316 ns |
+| Hold slack (`clk` / `jtag_tck`) | −0.301 / −0.244 ns |
+| Elapsed time | 3,344.9 s (55.7 min) |
+| Peak process-tree RSS | 17,105.9 MiB |
 | Actionable EDA warnings | 6 |
 
 How to read these numbers:
 
-- `repair_design` took 515.7 s, inserted 42,059 buffers, and resized 12,923
-  cells (+3.6% area). Setup repair made no moves.
-- The worst `clk` path ends at the clock-gating enable check in
-  `dut.rvtop.veer.ifu.mem_ctl.misc1_ff.genblock.clkhdr.clkhdr.u_icg`. Booley
-  labels it I/O-bound, but the saved STA report identifies a clock-gating
-  check, not a data output.
+- `repair_design` took 694.0 s, inserted 41,770 buffers, and resized 13,049
+  cells (+3.4% area). Setup repair made no moves.
+- The worst `clk` path is register to register, from the VeeR fetch address
+  register `dut.rvtop.veer.ifu.ifc.faddrf1_ff` to
+  `dut.i_boot_flow_monitor.boot_flow_error_q[0]`. It is outside the ECC unit.
 - The `jtag_tck` figure is a falling-to-rising half-cycle path, so the
   headline "Fmax 20 MHz [jtag_tck]" is not core speed.
 - Clocks are ideal (no clock-tree synthesis), and no SRAM macro is integrated.
@@ -46,7 +48,7 @@ How to read these numbers:
 
 ## Constraints (`synth/caliptra.sdc`)
 
-The mapped netlist has two clock roots: 196,975 flops on `clk` and 104 VeeR
+The mapped netlist has two clock roots: 200,620 flops on `clk` and 104 VeeR
 debug flops on `jtag_tck`. No divided, muxed, or flop-generated clocks exist.
 The SDC declares:
 
@@ -103,8 +105,17 @@ synthesized as about 25k flops and the numbers above do not reproduce.
 - `synth/nangate45_icg.sv`, which maps the Caliptra and VeeR technology seams
   directly to four `CLKGATE_X1` and 998 `CLKGATETST_X1` cells;
 - `synth/ecc_ram_tdp_timing_surrogate.sv`, a synthesis-only,
-  depth-independent timing boundary for the active internal ECC 64x384
-  dual-port RAM, selected through the `USER_ECC_RAM_TDP` hook; and
+  depth-independent stand-in for the active internal ECC 64x384 dual-port
+  RAM, selected through the `USER_ECC_RAM_TDP` hook. It has no storage: each
+  read port is one registered 384-bit word loaded from the write data
+  (`douta <= (wea ? dina : dinb) ^ addra`, and symmetrically for port B).
+  Read data must depend on write data. An earlier version returned only the
+  read address, so 378 of 384 read bits were constant and flattening deleted
+  about 149 kGE of ECC logic (most of the Montgomery multiplier and modular
+  adder, plus result registers). That under-reported area and moved the ECC
+  critical path. Production uses an SRAM macro; Booley's flow has no hard-macro
+  (LEF/LIB) support, so the RAM is deliberately not built from standard
+  cells; and
 - `synth/caliptra.sdc`, described above.
 
 The mapped netlist contains no functional RAM. External bulk memories are
