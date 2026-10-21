@@ -233,13 +233,12 @@ tests = [
 # The TB exits 0 either way; Booley grades "* TESTCASE PASSED/FAILED".
 # Variant "one" runs only the first vector (fast runs).
 # ECC_normal_test is upstream's combined test (all four operations per
-# vector, one tail). It is skipped in whole-Target runs, so SIM Goals and
-# mutation runs see only the five Tests above; name it explicitly
-# (ECC_normal_test+one) for coverage: one process instead of five tails
-# keeps a coverage run near 13 minutes instead of 35.
+# vector, one tail). Its default Variant is "one" (about 45 s), so a whole-
+# Target run adds little; it is the coverage workload: one process instead
+# of five tails keeps a coverage run near 13 minutes instead of 35.
+# (A skipped Test cannot be required by a Goal, so it is not skipped.)
 select = "+ECC_TEST={name}"
 tests = ["keygen", "sign", "verify", "ecdh", "otf_reset", "ECC_normal_test"]
-skip = ["ECC_normal_test"]
 
 [sim_ecc.variants.keygen]
 default = "full"
@@ -267,6 +266,6 @@ full = []
 one = ["+ECC_NUM_VECTORS=1"]
 
 [sim_ecc.variants.ECC_normal_test]
-default = "full"
+default = "one"
 full = []
 one = ["+ECC_NUM_VECTORS=1"]

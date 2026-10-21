@@ -19,8 +19,9 @@ is mandatory.
 - `CYCLE_COUNT:sim_ecc` for each of `keygen`, `sign`, `verify` and `ecdh`:
   at most 10 % more cycles than the baseline of 719,675 / 736,978 / 960,405 /
   717,421 cycles, that is at most 791,642 / 810,675 / 1,056,445 / 789,163.
-- `SIM:sim_ecc`: every Test passes on all 10 shipped vectors (`keygen`,
-  `sign`, `verify`, `ecdh`, `otf_reset`).
+- `SIM:sim_ecc`: every Test passes: `keygen`, `sign`, `verify`, `ecdh` and
+  `otf_reset` on all 10 shipped vectors, and `ECC_normal_test` (all four
+  operations) on the first vector.
 - `COVERAGE:sim_ecc`: on `ECC_normal_test+one` (all four operations on the
   first vector), line, branch and toggle coverage of the Target's RTL stay
   within 2 points of the baseline (98.58 / 77.19 / 88.98 %).
@@ -64,7 +65,7 @@ fails the review even when every other Goal is met:
 
 ## Notes
 
-- One full `sim_ecc` run takes about 6 minutes; `--test <name>+one` runs one
+- One full `sim_ecc` run takes about 7 minutes; `--test <name>+one` runs one
   vector in under a minute. A hung design waits for `[flows.sim].timeout_ms`
   (2 hours, sized for the chip); pass `timeout_ms: 600000` to `sim` calls.
 - `synth_ecc_top` takes about 14 minutes and `synth_ecc_fau` about 2.

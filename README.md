@@ -60,7 +60,7 @@ If Doctor reports warnings, use the `/booley-heal` skill to resolve them.
 | `sim_caliptra` | `sim` | `caliptra_top_tb` on Verilator; each test builds its firmware first |
 | `lint_caliptra` | `lint` | Verilator lint of the full testbench |
 | `synth_caliptra` | `synth` | Yosys + OpenROAD ASIC synthesis (Nangate45) |
-| `sim_ecc` | `sim` | Block-level `ecc_top_tb` on Verilator: Tests `keygen`, `sign`, `verify`, `ecdh`, `otf_reset`, each printing its operation's cycle count, plus upstream's combined `ECC_normal_test` (skipped in whole-Target runs; used for coverage) |
+| `sim_ecc` | `sim` | Block-level `ecc_top_tb` on Verilator: Tests `keygen`, `sign`, `verify`, `ecdh`, `otf_reset`, each printing its operation's cycle count, plus upstream's combined `ECC_normal_test` on one vector (the coverage workload) |
 | `lint_ecc` | `lint` | Verilator lint of the ECC RTL |
 | `synth_ecc_top` | `synth` | `ecc_top` alone, with the ECC RAM stand-in (about 14 minutes) |
 | `synth_ecc_fau` | `synth` | The ECC field arithmetic unit `ecc_fau` through a wrapper (about 2 minutes) |
