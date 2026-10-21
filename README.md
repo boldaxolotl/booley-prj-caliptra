@@ -73,7 +73,7 @@ Start a chat in the container with `booley` and ask, for example:
 
 ## Patches
 
-`patches/` holds four commits for the Caliptra checkout. None changes RTL
+`patches/` holds five commits for the Caliptra checkout. None changes RTL
 behavior.
 
 | Patch | Needed for | What it does |
@@ -82,9 +82,11 @@ behavior.
 | `0002-disable-ocp-lock-for-kv-enforcement.patch` | `sim` | Passes `+CLP_OCP_LOCK_DIS` to `directed_kv_enforcement`, as the test assumes |
 | `0003-axi-dma-default-case-arm.patch` | `synth` | Adds an unreachable `default` arm so the Yosys Slang frontend does not infer a combinational loop |
 | `0004-ecc-ram-synthesis-hook.patch` | `synth` | Lets synthesis swap the ECC operand RAM for a timing surrogate; inactive unless `USER_ECC_RAM_TDP` is defined |
+| `0005-ecc-top-tb-per-operation-tests.patch` | `sim` (`sim_ecc`) | Adds per-operation tests, `+ECC_NUM_VECTORS`, and `[SIM_CYCLES]` cycle reports to the ECC block testbench |
 
 Without them, the affected tests fail to build, synthesis reports a
-combinational loop, and the ECC RAM is synthesized as flops. None is fixed on
+combinational loop, the ECC RAM is synthesized as flops, and `sim_ecc` has no
+per-operation tests. None is fixed on
 upstream `main` at `7b901d59` (2026-10-08).
 [`patches/README.md`](patches/README.md) explains each patch in detail, and
 each commit message repeats its explanation.

@@ -1,0 +1,122 @@
+From ab25f472c02b2ab20663e6979fc703f0538f481b Mon Sep 17 00:00:00 2001
+From: "A.R." <boldaxolotl@proton.me>
+Date: Wed, 21 Oct 2026 12:16:43 +0400
+Subject: [PATCH] Add per-operation tests and cycle reports to the ECC top
+ testbench
+
++ECC_NUM_VECTORS=N runs only the first N of the vectors (default 10, as
+before). ECC_TEST=keygen, sign, verify or ecdh runs that one operation per
+vector; otf_reset is an alias for ECC_otf_reset_test. After the vector loop
+the testbench prints one "[SIM_CYCLES] <op> <cycles>" line per operation
+that ran, with the worst case over the vectors.
+
+Pass/fail reporting is unchanged: the testbench still exits 0 and prints
+"* TESTCASE PASSED" or "* TESTCASE FAILED".
+---
+ src/ecc/tb/ecc_top_tb.sv | 39 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 36 insertions(+), 3 deletions(-)
+
+diff --git a/src/ecc/tb/ecc_top_tb.sv b/src/ecc/tb/ecc_top_tb.sv
+index 8f2af707..d45ac478 100644
+--- a/src/ecc/tb/ecc_top_tb.sv
++++ b/src/ecc/tb/ecc_top_tb.sv
+@@ -127,6 +127,13 @@ module ecc_top_tb
+   reg [383: 0]  reg_read_data;
+ 
+   int                   test_vector_cnt;
++  int                   ecc_num_vectors = 10; // +ECC_NUM_VECTORS=N runs only the first N vectors (1..TEST_VECTOR_NUM)
++
++  // Worst-case cycles of each operation over the vectors run, and how many
++  // times it ran. ecc_test() reports every operation that ran with exactly
++  // one line "[SIM_CYCLES] <op> <cycles>" (op = keygen, sign, verify, ecdh).
++  int unsigned          keygen_cycles_max, sign_cycles_max, verify_cycles_max, ecdh_cycles_max;
++  int unsigned          keygen_runs, sign_runs, verify_runs, ecdh_runs;
+ 
+   initial begin
+     if ($value$plusargs("ECC_TEST_VECTOR_FILE=%s", ecc_test_vector_file)) begin
+@@ -142,6 +149,14 @@ module ecc_top_tb
+       ecc_test_to_run = "default";
+       $display("%m: Running default test = %s", ecc_test_to_run);
+     end
++
++    if ($value$plusargs("ECC_NUM_VECTORS=%d", ecc_num_vectors)) begin
++      if ((ecc_num_vectors < 1) || (ecc_num_vectors > TEST_VECTOR_NUM)) begin
++        $display("%m: ECC_NUM_VECTORS=%0d is outside 1..%0d", ecc_num_vectors, TEST_VECTOR_NUM);
++        $finish;
++      end
++      $display("%m: Running only the first %0d test vectors", ecc_num_vectors);
++    end
+   end
+ 
+   //bind coverage file
+@@ -511,6 +526,8 @@ module ecc_top_tb
+ 
+       end_time = cycle_ctr - start_time;
+       $display("*** keygen test processing time = %01d cycles.", end_time);
++      keygen_runs = keygen_runs + 1;
++      if (end_time > keygen_cycles_max) keygen_cycles_max = end_time;
+       $display("privkey    : 0x%96x", privkey);
+       $display("pubkeyx    : 0x%96x", pubkey.x);
+       $display("pubkeyy    : 0x%96x", pubkey.y);
+@@ -579,6 +596,8 @@ module ecc_top_tb
+ 
+       end_time = cycle_ctr - start_time;
+       $display("*** signing test processing time = %01d cycles.", end_time);
++      sign_runs = sign_runs + 1;
++      if (end_time > sign_cycles_max) sign_cycles_max = end_time;
+       $display("privkey    : 0x%96x", test_vector.privkey);
+ 
+       if (R == test_vector.R & S == test_vector.S)
+@@ -650,6 +669,8 @@ module ecc_top_tb
+ 
+       end_time = cycle_ctr - start_time;
+       $display("*** verifying test processing time = %01d cycles.", end_time);
++      verify_runs = verify_runs + 1;
++      if (end_time > verify_cycles_max) verify_cycles_max = end_time;
+       $display("privkey    : 0x%96x", test_vector.privkey);
+ 
+       fw_verify_pass = (verify_r == test_vector.R);
+@@ -1132,18 +1153,28 @@ module ecc_top_tb
+   //----------------------------------------------------------------
+   task ecc_test();
+     begin  
+-      for (int i = 0; i < 10; i++) begin: test_vector_loop
++      for (int i = 0; i < ecc_num_vectors; i++) begin: test_vector_loop
+         if ((ecc_test_to_run == "ECC_normal_test") || (ecc_test_to_run == "default")) begin
+           ecc_keygen_test(i, test_vectors[i]);
+           ecc_signing_test(i, test_vectors[i]);
+           ecc_verifying_test(i, test_vectors[i]);
+           ecc_DH_sharedkey_test(i, test_vectors[i]);
+         end
+-        else if (ecc_test_to_run == "ECC_otf_reset_test") begin
++        else if ((ecc_test_to_run == "ECC_otf_reset_test") || (ecc_test_to_run == "otf_reset")) begin
+           ecc_onthefly_reset_test(i, test_vectors[i]);
+         end
++        // Single-operation tests: one operation per vector.
++        else if (ecc_test_to_run == "keygen") ecc_keygen_test(i, test_vectors[i]);
++        else if (ecc_test_to_run == "sign")   ecc_signing_test(i, test_vectors[i]);
++        else if (ecc_test_to_run == "verify") ecc_verifying_test(i, test_vectors[i]);
++        else if (ecc_test_to_run == "ecdh")   ecc_DH_sharedkey_test(i, test_vectors[i]);
+       end
+-      
++
++      if (keygen_runs > 0) $display("[SIM_CYCLES] keygen %0d", keygen_cycles_max);
++      if (sign_runs   > 0) $display("[SIM_CYCLES] sign %0d",   sign_cycles_max);
++      if (verify_runs > 0) $display("[SIM_CYCLES] verify %0d", verify_cycles_max);
++      if (ecdh_runs   > 0) $display("[SIM_CYCLES] ecdh %0d",   ecdh_cycles_max);
++
+       continuous_cmd_test(test_vectors[0]);
+       zeroize_test(test_vectors[1]);
+       ecc_fault_test();
+@@ -1322,6 +1353,8 @@ module ecc_top_tb
+ 
+       end_time = cycle_ctr - start_time;
+       $display("*** DH shared key test processing time = %01d cycles.", end_time);
++      ecdh_runs = ecdh_runs + 1;
++      if (end_time > ecdh_cycles_max) ecdh_cycles_max = end_time;
+       $display("privkey    : 0x%96x", test_vector.privkeyB);
+ 
+       if (DH_sharedkey == test_vector.DH_sharedkey)
+-- 
+2.53.0
+

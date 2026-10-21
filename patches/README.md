@@ -1,6 +1,6 @@
 # Caliptra patches
 
-This project needs four small commits on top of Caliptra RTL commit
+This project needs five small commits on top of Caliptra RTL commit
 [`e379800c`](https://github.com/chipsalliance/caliptra-rtl/commit/e379800c5467379386f96a9a51a539bd662b608a).
 Apply them from the Caliptra checkout root:
 
@@ -11,8 +11,9 @@ git am .booley/patches/*.patch
 
 None of them changes RTL behavior. Patches 0001 and 0002 let the registered
 firmware tests in `tests.toml` build and pass; 0003 and 0004 let `synth_caliptra`
-run and reproduce [`synth/ASIC-REPORT.md`](../synth/ASIC-REPORT.md). Each patch's
-commit message repeats its explanation.
+run and reproduce [`synth/ASIC-REPORT.md`](../synth/ASIC-REPORT.md); 0005 gives
+`sim_ecc` its per-operation tests. Each patch's commit message repeats its
+explanation.
 
 As of upstream `main` at `7b901d59` (2026-10-08), none of these issues is fixed
 upstream.
@@ -87,3 +88,26 @@ a synthesis-only stand-in that keeps the RAM's timing endpoints but not its
 contents. The macro is undefined everywhere else, so simulation and lint are
 unchanged. Without this patch, the RAM is synthesized as flops, so area and
 timing differ from `synth/ASIC-REPORT.md`.
+
+## 0005 – Add per-operation tests and cycle reports to the ECC top testbench
+
+**Needed for:** `sim` (`sim_ecc`)
+
+`src/ecc/tb/ecc_top_tb.sv` runs every operation on all 10 vectors in one
+test and prints a cycle count per vector. The patch adds:
+
+- `+ECC_NUM_VECTORS=N`: run only the first N vectors (1 to
+  `TEST_VECTOR_NUM`; default 10, as before). `sim_ecc`'s Test Variant `one`
+  uses it.
+- `ECC_TEST=keygen`, `sign`, `verify` or `ecdh`: run that one operation on
+  each vector. `otf_reset` is an alias for `ECC_otf_reset_test`. These are
+  `sim_ecc`'s Tests.
+- One `[SIM_CYCLES] <op> <cycles>` line per operation that ran, after the
+  vector loop, with the worst case over the vectors. Booley records it as the
+  Test's cycle count; `ECC_normal_test` prints all four lines.
+
+Everything else is unchanged: the common tail (back-to-back commands,
+zeroize, fault check) still runs after every test, and the testbench still
+exits 0 and reports through `* TESTCASE PASSED` or `* TESTCASE FAILED`.
+
+Test-only change; no RTL is touched.
