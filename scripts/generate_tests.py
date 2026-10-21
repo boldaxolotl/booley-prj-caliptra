@@ -134,9 +134,15 @@ SIM_ECC_SECTION = """\
 # otf_reset: reset during signing on each vector. Every Test also runs the
 # upstream tail: back-to-back keygen/sign/verify, zeroize and a fault check.
 # The TB exits 0 either way; Booley grades "* TESTCASE PASSED/FAILED".
-# Variant "one" runs only the first vector (fast runs and coverage).
+# Variant "one" runs only the first vector (fast runs).
+# ECC_normal_test is upstream's combined test (all four operations per
+# vector, one tail). It is skipped in whole-Target runs, so SIM Goals and
+# mutation runs see only the five Tests above; name it explicitly
+# (ECC_normal_test+one) for coverage: one process instead of five tails
+# keeps a coverage run near 13 minutes instead of 35.
 select = "+ECC_TEST={name}"
-tests = ["keygen", "sign", "verify", "ecdh", "otf_reset"]
+tests = ["keygen", "sign", "verify", "ecdh", "otf_reset", "ECC_normal_test"]
+skip = ["ECC_normal_test"]
 
 [sim_ecc.variants.keygen]
 default = "full"
@@ -159,6 +165,11 @@ full = []
 one = ["+ECC_NUM_VECTORS=1"]
 
 [sim_ecc.variants.otf_reset]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.ECC_normal_test]
 default = "full"
 full = []
 one = ["+ECC_NUM_VECTORS=1"]
