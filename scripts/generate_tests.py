@@ -1,4 +1,4 @@
-"""Generate ``tests.toml``, the Booley test registry for ``sim_caliptra``.
+"""Generate ``tests.toml``, the Booley test registry for ``sim_caliptra`` and ``sim_ecc``.
 
 Each upstream test is a YAML manifest at
 ``src/integration/test_suites/<suite>/<test>.yml``; the test name is the YAML
@@ -122,6 +122,48 @@ HEADER_LINES = [
 ]
 
 
+# Block-level ECC Target (cores/caliptra_ecc.core), appended verbatim after
+# the sim_caliptra section. Hand-maintained: it does not depend on upstream
+# test manifests.
+SIM_ECC_SECTION = """\
+[sim_ecc]
+# Block-level ecc_top_tb (cores/caliptra_ecc.core), patched by
+# patches/0005: +ECC_TEST=<op> runs one operation per vector and prints
+# "[SIM_CYCLES] <op> <cycles>" (worst case over the vectors run).
+# keygen/sign/verify/ecdh: that operation on each of the 10 shipped vectors;
+# otf_reset: reset during signing on each vector. Every Test also runs the
+# upstream tail: back-to-back keygen/sign/verify, zeroize and a fault check.
+# The TB exits 0 either way; Booley grades "* TESTCASE PASSED/FAILED".
+# Variant "one" runs only the first vector (fast runs and coverage).
+select = "+ECC_TEST={name}"
+tests = ["keygen", "sign", "verify", "ecdh", "otf_reset"]
+
+[sim_ecc.variants.keygen]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.sign]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.verify]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.ecdh]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.otf_reset]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+"""
+
 def l0_suite_order(root: Path) -> list[str]:
     """Return the suite names in upstream's L0 regression, in CI order."""
     l0 = (root / "src/integration/stimulus/L0_regression.yml").read_text()
@@ -175,7 +217,7 @@ def main() -> None:
             f'  # "{name}",',
         ]
     lines += ["]", ""]
-    out.write_text("\n".join(lines))
+    out.write_text("\n".join(lines) + "\n" + SIM_ECC_SECTION)
     print(
         f"{out}: {len(ordered)} registered tests; {len(EXCLUDED)} upstream Verilator exclusions"
     )

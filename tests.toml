@@ -222,3 +222,40 @@ tests = [
   # Native and Booley runs fail with tests 4-11 incomplete and a bad generic-input toggle.
   # "smoke_test_ras",
 ]
+
+[sim_ecc]
+# Block-level ecc_top_tb (cores/caliptra_ecc.core), patched by
+# patches/0005: +ECC_TEST=<op> runs one operation per vector and prints
+# "[SIM_CYCLES] <op> <cycles>" (worst case over the vectors run).
+# keygen/sign/verify/ecdh: that operation on each of the 10 shipped vectors;
+# otf_reset: reset during signing on each vector. Every Test also runs the
+# upstream tail: back-to-back keygen/sign/verify, zeroize and a fault check.
+# The TB exits 0 either way; Booley grades "* TESTCASE PASSED/FAILED".
+# Variant "one" runs only the first vector (fast runs and coverage).
+select = "+ECC_TEST={name}"
+tests = ["keygen", "sign", "verify", "ecdh", "otf_reset"]
+
+[sim_ecc.variants.keygen]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.sign]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.verify]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.ecdh]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]
+
+[sim_ecc.variants.otf_reset]
+default = "full"
+full = []
+one = ["+ECC_NUM_VECTORS=1"]

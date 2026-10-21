@@ -4,7 +4,11 @@
 # Called by Booley before each sim run, via booley.toml:
 #   [flows.sim].pre_run_commands = ['bash "$BOOLEY_DIR/scripts/build_firmware.sh"']
 #
+# Pre-Sim Commands run for every sim Target, but only the chip Target
+# (sim_caliptra) loads firmware; for any other Target this script does nothing.
+#
 # Environment (set by Booley):
+#   BOOLEY_TARGET        Target being run (bare or VLNV-qualified selector)
 #   BOOLEY_TEST_NAME     test to run: a YAML manifest stem from tests.toml
 #   BOOLEY_PROJECT_ROOT  the Caliptra checkout (not .booley)
 #   BOOLEY_RUN_CWD       directory the simulator runs in ([flows.sim].run_cwd)
@@ -20,6 +24,12 @@
 # Needs the upstream firmware toolchain (RISC-V GCC, make), readelf, and
 # python3 with PyYAML.
 set -euo pipefail
+
+# Block-level Targets (e.g. sim_ecc) need no firmware.
+case "${BOOLEY_TARGET:-}" in
+  sim_caliptra|*#sim_caliptra) ;;
+  *) echo "No firmware for Target ${BOOLEY_TARGET:-<unset>}; nothing to build"; exit 0 ;;
+esac
 
 : "${BOOLEY_TEST_NAME:?BOOLEY_TEST_NAME is required}"
 : "${BOOLEY_PROJECT_ROOT:?BOOLEY_PROJECT_ROOT is required}"

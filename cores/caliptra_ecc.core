@@ -1,0 +1,542 @@
+CAPI=2:
+name: local:caliptra:ecc:1
+description: >-
+  Caliptra secp384 ECC engine (ecc_top) at block level. Simulation runs the
+  upstream ecc_top_tb; lint and synthesis use the RTL list from
+  src/ecc/config/ecc_top.vf with the VF variables resolved
+  (CALIPTRA_PRIM_ROOT = src/caliptra_prim_generic, prefix caliptra_prim_generic).
+filesets:
+  ecc_rtl:
+    files:
+    - src/keyvault/rtl/kv_macros.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_assert.sv:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/libs/rtl/caliptra_sva.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_assert_dummy_macros.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_assert_yosys_macros.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_assert_standard_macros.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_assert_sec_cm.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_flop_macros.sv:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/libs/rtl/caliptra_macros.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_module_name_macros.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/caliptra_prim/rtl/caliptra_prim_util_memload.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/integration/rtl/config_defines.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/libs/rtl/caliptra_sram.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/ahb_defines_pkg.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/caliptra_ahb_srom.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/ahb_slv_sif.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/caliptra_icg.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/clk_gate.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/caliptra_2ff_sync.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/ahb_to_reg_adapter.sv:
+        file_type: systemVerilogSource
+    - src/libs/rtl/skidbuffer.v:
+        file_type: verilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_util_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_alert_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_subreg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_mubi_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_cipher_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_sparse_fsm_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_trivium_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_secded_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_otp_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_ram_1p_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_esc_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_count_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/keymgr_pkg.sv:
+        file_type: systemVerilogSource
+    - src/lc_ctrl/rtl/lc_ctrl_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/lc_ctrl/rtl/lc_ctrl_state_pkg.sv:
+        file_type: systemVerilogSource
+    - src/lc_ctrl/rtl/lc_ctrl_pkg.sv:
+        file_type: systemVerilogSource
+    - src/entropy_src/rtl/entropy_src_main_sm_pkg.sv:
+        file_type: systemVerilogSource
+    - src/entropy_src/rtl/entropy_src_ack_sm_pkg.sv:
+        file_type: systemVerilogSource
+    - src/entropy_src/rtl/entropy_src_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/entropy_src/rtl/entropy_src_pkg.sv:
+        file_type: systemVerilogSource
+    - src/csrng/rtl/csrng_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/csrng/rtl/csrng_pkg.sv:
+        file_type: systemVerilogSource
+    - src/edn/rtl/edn_pkg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_flop_en.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_flop.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_buf.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_ram_1p.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_and2.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_clock_mux2.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_clock_inv.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_xor2.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_xnor2.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_flop_en.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_cdc_rand_delay.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_flop_2sync.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_lfsr.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_double_lfsr.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_arbiter_fixed.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_arbiter_tree.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_edn_req.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_present.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_lc_sender.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_sync_reqack.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_sync_reqack_data.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_mubi4_sync.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_diff_decode.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_sec_anchor_buf.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_slicer.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_count.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_sparse_fsm_flop.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_dom_and_2share.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_sec_anchor_flop.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_reg_we_check.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_packer_fifo.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_max_tree.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_subreg_arb.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_subreg.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_intr_hw.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_onehot_check.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_onehot_enc.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_onehot_mux.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_mubi8_sync.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_mubi8_sender.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_fifo_sync_cnt.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_buf.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_lc_sync.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_alert_receiver.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_flop.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_alert_sender.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_fifo_sync.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_arbiter_ppc.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_sum_tree.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_subreg_ext.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_edge_detector.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_trivium.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_blanker.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_ram_1p_adv.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_mubi4_sender.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_packer.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_subreg_shadow.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_esc_receiver.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_mubi4_dec.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_clock_mux2.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_fifo_async.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_fifo_async_simple.sv:
+        file_type: systemVerilogSource
+    - src/caliptra_prim/rtl/caliptra_prim_gf_mult.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_defines_pkg.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_reg.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_fsm.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_read_client.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_write_client.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_read_rule_check.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/rtl/kv_write_rule_check.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/rtl/pv_defines_pkg.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/rtl/pv_gen_hash.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/rtl/pv_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/rtl/pv_reg.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/rtl/pv.sv:
+        file_type: systemVerilogSource
+    - src/sha512/rtl/sha512_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/sha512/rtl/sha512_params_pkg.sv:
+        file_type: systemVerilogSource
+    - src/sha512/rtl/sha512_ctrl.sv:
+        file_type: systemVerilogSource
+    - src/sha512/rtl/sha512.sv:
+        file_type: systemVerilogSource
+    - src/sha512/rtl/sha512_core.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_h_constants.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_k_constants.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_w_mem.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_reg.sv:
+        file_type: systemVerilogSource
+    - src/sha512_masked/rtl/sha512_masked_defines_pkg.sv:
+        file_type: systemVerilogSource
+    - src/sha512_masked/rtl/sha512_masked_core.sv:
+        file_type: systemVerilogSource
+    - src/sha512_masked/rtl/sha512_masked_w_mem.sv:
+        file_type: systemVerilogSource
+    - src/hmac/rtl/hmac_param_pkg.sv:
+        file_type: systemVerilogSource
+    - src/hmac/rtl/hmac_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/hmac/rtl/hmac_ctrl.sv:
+        file_type: systemVerilogSource
+    - src/hmac/rtl/hmac.sv:
+        file_type: systemVerilogSource
+    - src/hmac/rtl/hmac_core.sv:
+        file_type: systemVerilogSource
+    - src/hmac/rtl/hmac_reg.sv:
+        file_type: systemVerilogSource
+    - src/hmac_drbg/rtl/hmac_drbg.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_reg_pkg.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_defines_pkg.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_params_pkg.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_dsa_uop_pkg.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_pm_uop_pkg.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_top.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_reg.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_dsa_ctrl.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_dsa_sequencer.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_scalar_blinding.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_hmac_drbg_interface.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_arith_unit.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_pm_ctrl.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_pm_sequencer.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_ram_tdp_file.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_fau.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_montgomerymultiplier.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_pe_first.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_pe.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_pe_final.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_mult_dsp.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_add_sub_mod_alter.sv:
+        file_type: systemVerilogSource
+    - src/ecc/rtl/ecc_adder.sv:
+        file_type: systemVerilogSource
+  ecc_tb:
+    files:
+    - src/integration/rtl/caliptra_reg/caliptra_reg_defines.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/integration/rtl/caliptra_reg/caliptra_reg_field_defines.svh:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/ecc/coverage/ecc_top_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/ecc/coverage/ecc_top_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/ecc/tb/ecc_top_tb.sv:
+        file_type: systemVerilogSource
+    tags:
+    - tb
+  ecc_tb_cpp:
+    # C++ main: advances --timing time, traces, and writes coverage.
+    files:
+    - .booley/sim/ecc_top_tb_main.cpp:
+        file_type: cppSource
+    tags:
+    - tb
+  ecc_tb_vectors:
+    # The TB opens the file named by +ECC_TEST_VECTOR_FILE, relative to the
+    # simulation working directory.
+    files:
+    - src/ecc/tb/test_vectors/ecc_drbg_mbedtls.hex:
+        file_type: user
+        copyto: ecc_drbg_mbedtls.hex
+    tags:
+    - tb
+  tech_cells:
+    files:
+    - .booley/synth/nangate45_icg.sv:
+        file_type: systemVerilogSource
+  synth_memory:
+    files:
+    - .booley/synth/ecc_ram_tdp_timing_surrogate.sv:
+        file_type: systemVerilogSource
+  fau_wrapper:
+    files:
+    - .booley/synth/ecc_fau_synth_wrapper.sv:
+        file_type: systemVerilogSource
+  constraints:
+    files:
+    - .booley/synth/ecc_top.sdc:
+        file_type: SDC
+targets:
+  # Upstream ecc_top_tb on Verilator. Tests (tests.toml): one operation per
+  # Test (keygen, sign, verify, ecdh) plus otf_reset, each over the 10
+  # shipped vectors; Test Variant "one" runs only the first vector.
+  sim_ecc:
+    flow: sim
+    flow_options:
+      tool: verilator
+      booley:
+        doctor:
+        - sim
+        coverage:
+          reset_included: true
+          custom_main_hooks:
+          - write_hook
+      verilator_options:
+      - +define+CLP_ASSERT_ON
+      - +define+SIMULATION
+      - --timing
+      - --exe
+      - --timescale
+      - 1ns/1ps
+      - -Wno-WIDTH
+      - -Wno-UNOPTFLAT
+      - -Wno-LITENDIAN
+      - -Wno-CMPCONST
+      - -Wno-MULTIDRIVEN
+      - -Wno-UNPACKED
+      - -Wno-LATCH
+      - -Wno-SIDEEFFECT
+    filesets:
+    - ecc_rtl
+    - ecc_tb
+    - ecc_tb_cpp
+    - ecc_tb_vectors
+    toplevel: ecc_top_tb
+    parameters:
+    - ECC_TEST_VECTOR_FILE
+  # Verilator lint of the ECC RTL alone (no testbench). Upstream RTL has
+  # only WIDTH* and CMPCONST warnings, which lint_caliptra also waives.
+  lint_ecc:
+    flow: lint
+    flow_options:
+      tool: verilator
+      booley:
+        doctor:
+        - lint
+      verilator_options:
+      - -Wno-WIDTH
+      - -Wno-CMPCONST
+    filesets:
+    - ecc_rtl
+    toplevel: ecc_top
+  # Goal A: ecc_top with the operand RAM replaced by the fixed synthesis
+  # stand-in (synth/ecc_ram_tdp_timing_surrogate.sv). Same recipe as
+  # synth_caliptra; constraints in synth/ecc_top.sdc (clk 20 ns).
+  synth_ecc_top:
+    flow: generic
+    flow_options:
+      tool: yosys
+      arch: xilinx
+      frontend: slang
+      synth_mode: physical
+      ppa_profile: balanced
+      advanced_settings_yosys:
+        abc_recipe: fast
+      flatten: true
+      slang_options:
+      - --single-unit
+    filesets:
+    - ecc_rtl
+    - tech_cells
+    - synth_memory
+    - constraints
+    toplevel: ecc_top
+    parameters:
+    - SYNTHESIS
+    - RV_OPENSOURCE
+    - CALIPTRA_INTERNAL_TRNG
+    - TECH_SPECIFIC_ICG
+    - USER_ICG
+    - TECH_SPECIFIC_EC_RV_ICG
+    - USER_EC_RV_ICG
+    - USER_ECC_RAM_TDP
+  # Goal B: the field arithmetic unit (Montgomery multiplier + modular
+  # adder) through synth/ecc_fau_synth_wrapper.sv, which instantiates ecc_fau
+  # exactly as ecc_arith_unit does.
+  synth_ecc_fau:
+    flow: generic
+    flow_options:
+      tool: yosys
+      arch: xilinx
+      frontend: slang
+      synth_mode: physical
+      ppa_profile: balanced
+      advanced_settings_yosys:
+        abc_recipe: fast
+      flatten: true
+      slang_options:
+      - --single-unit
+    filesets:
+    - ecc_rtl
+    - fau_wrapper
+    - constraints
+    toplevel: ecc_fau_synth_wrapper
+    parameters:
+    - SYNTHESIS
+parameters:
+  ECC_TEST_VECTOR_FILE:
+    datatype: str
+    paramtype: plusarg
+    default: ecc_drbg_mbedtls.hex
+  SYNTHESIS:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  RV_OPENSOURCE:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  CALIPTRA_INTERNAL_TRNG:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  TECH_SPECIFIC_ICG:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  USER_ICG:
+    datatype: str
+    paramtype: vlogdefine
+    default: caliptra_nangate45_icg
+  TECH_SPECIFIC_EC_RV_ICG:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  USER_EC_RV_ICG:
+    datatype: str
+    paramtype: vlogdefine
+    default: veer_nangate45_icg
+  USER_ECC_RAM_TDP:
+    datatype: str
+    paramtype: vlogdefine
+    default: caliptra_ecc_ram_tdp_timing_surrogate

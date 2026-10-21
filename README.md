@@ -60,6 +60,10 @@ If Doctor reports warnings, use the `/booley-heal` skill to resolve them.
 | `sim_caliptra` | `sim` | `caliptra_top_tb` on Verilator; each test builds its firmware first |
 | `lint_caliptra` | `lint` | Verilator lint of the full testbench |
 | `synth_caliptra` | `synth` | Yosys + OpenROAD ASIC synthesis (Nangate45) |
+| `sim_ecc` | `sim` | Block-level `ecc_top_tb` on Verilator: Tests `keygen`, `sign`, `verify`, `ecdh`, `otf_reset`; each prints its operation's cycle count |
+| `lint_ecc` | `lint` | Verilator lint of the ECC RTL |
+| `synth_ecc_top` | `synth` | `ecc_top` alone, with the ECC RAM stand-in (about 14 minutes) |
+| `synth_ecc_fau` | `synth` | The ECC field arithmetic unit `ecc_fau` through a wrapper (about 2 minutes) |
 
 `tests.toml` registers 175 upstream firmware tests (for example
 `smoke_test_mbox` or `hello_world_iccm`). Tests that do not pass on Verilator
@@ -100,14 +104,16 @@ in `.core` files are relative to the Caliptra root.
 | --- | --- |
 | `booley.toml` | Project configuration: agent provider, Sandbox image, Flow settings |
 | `AGENTS.md` | Instructions for the AI agent working in this project |
-| `tests.toml` | Firmware test registry for `sim_caliptra` (generated) |
+| `tests.toml` | Test registry for `sim_caliptra` (firmware tests) and `sim_ecc` (generated) |
 | `cores/caliptra_rtl.core` | FuseSoC core for the Caliptra RTL, built from upstream `.vf` filelists (generated) |
 | `cores/caliptra_booley.core` | `sim_caliptra` and `lint_caliptra` Targets (generated) |
 | `cores/caliptra_synth.core` | `synth_caliptra` Target |
+| `cores/caliptra_ecc.core` | Block-level ECC Targets `sim_ecc`, `lint_ecc`, `synth_ecc_top`, `synth_ecc_fau` |
+| `sim/ecc_top_tb_main.cpp` | Verilator `main()` for `sim_ecc`, with trace and coverage support |
 | `cores/caliptra_doctor_selftest.core` | Deliberately broken fixture that proves `booley doctor --deep` catches lint failures |
 | `generated/test_caliptra_top_tb.cpp` | Upstream Verilator `main()` with per-test plusargs and Booley trace-file support (generated) |
 | `scripts/` | Generators for the files above, plus `build_firmware.sh`, which builds each test's firmware before simulation |
-| `synth/` | ASIC synthesis wrapper, clock-gate and RAM adapters, SDC, and [`ASIC-REPORT.md`](synth/ASIC-REPORT.md) |
+| `synth/` | ASIC synthesis wrappers, clock-gate and RAM adapters, SDCs, and [`ASIC-REPORT.md`](synth/ASIC-REPORT.md) |
 | `selftest/` | Bad-input fixtures for Doctor's fail-path checks |
 | `patches/` | Caliptra patches and their [explanations](patches/README.md) |
 | `doctor-waivers.toml` | Reviewed Doctor waiver for the known synthesis hold-slack warning |
