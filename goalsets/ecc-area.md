@@ -17,8 +17,8 @@ is mandatory.
   multiplier and modular adder) at most 178.8 kGE (−15 % of 210.3 kGE) and
   Fmax at least 207.0 MHz (−5 % of 217.9 MHz).
 - `CYCLE_COUNT:sim_ecc` for each of `keygen`, `sign`, `verify` and `ecdh`:
-  at most 10 % more cycles than at the Goal base commit (baseline 719,675 /
-  736,978 / 960,405 / 717,421 cycles).
+  at most 10 % more cycles than the baseline of 719,675 / 736,978 / 960,405 /
+  717,421 cycles, that is at most 791,642 / 810,675 / 1,056,445 / 789,163.
 - `SIM:sim_ecc`: every Test passes on all 10 shipped vectors (`keygen`,
   `sign`, `verify`, `ecdh`, `otf_reset`).
 - `COVERAGE:sim_ecc`: on `ECC_normal_test+one` (all four operations on the
@@ -91,28 +91,28 @@ fails the review even when every other Goal is met:
     "family": "CYCLE_COUNT",
     "target": "sim_ecc",
     "test": "keygen",
-    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "thresholds": {"cycle_count_max": 791642},
     "origin": "ecc-area"
   },
   {
     "family": "CYCLE_COUNT",
     "target": "sim_ecc",
     "test": "sign",
-    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "thresholds": {"cycle_count_max": 810675},
     "origin": "ecc-area"
   },
   {
     "family": "CYCLE_COUNT",
     "target": "sim_ecc",
     "test": "verify",
-    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "thresholds": {"cycle_count_max": 1056445},
     "origin": "ecc-area"
   },
   {
     "family": "CYCLE_COUNT",
     "target": "sim_ecc",
     "test": "ecdh",
-    "thresholds": {"cycle_count_increase_at_most": "10%"},
+    "thresholds": {"cycle_count_max": 789163},
     "origin": "ecc-area"
   },
   {
