@@ -1,0 +1,39 @@
+[project]
+name = "Caliptra RTL"
+
+[agent]
+provider = "codex"
+auth = "subscription"
+
+[sandbox]
+image = "booley-sandbox-riscv"
+memory = "28g"
+
+[jobs]
+heavy_memory = "22g"
+
+[stealth]
+enabled = true
+
+[flows.sim]
+enabled = true
+pass_sentinels = ["* TESTCASE PASSED", "* TEST PASSED"]
+fail_sentinels = ["* TESTCASE FAILED", "* TEST FAILED", "ERROR! FW attempted to end the simulation"]
+run_cwd = ".booley_project/runs/sim"
+pre_run_commands = ['bash "$BOOLEY_PROJECT_DIR/scripts/build_firmware.sh"']
+timeout_ms = 7200000
+
+[flows.lint]
+enabled = true
+timeout_ms = 900000
+
+[flows.synth]
+enabled = true
+# Full mapped placement and STA can exceed 90 minutes under shared CPU load.
+timeout_ms = 7200000
+
+# Reviewer Specialist disabled so the developer agent works with one model
+# only (the Specialist's heavy tier may use a stronger model). Delete this
+# table to enable it.
+[specialists.reviewer]
+enabled = false

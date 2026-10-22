@@ -1,0 +1,15 @@
+CAPI=2:
+name: local:caliptra:doctor_selftest:1
+description: Doctor-only Caliptra lint fail-path fixture
+
+filesets:
+  lint_selftest_bad:
+    files:
+      - .booley_project/selftest/lint/bad.sv: {file_type: systemVerilogSource}
+
+targets:
+  lint_selftest_bad:
+    flow: lint
+    flow_options: {tool: verilator, booley: {doctor_selftest: true}}
+    filesets: [lint_selftest_bad]
+    toplevel: caliptra_lint_selftest_bad

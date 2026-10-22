@@ -1,0 +1,212 @@
+CAPI=2:
+name: local:caliptra:booley:1
+description: Caliptra RTL Booley adapter generated from upstream VF filelists
+filesets:
+  design:
+    depend:
+    - local:caliptra:rtl:1
+  tb:
+    files:
+    - src/axi/rtl/caliptra_axi_sram.sv:
+        file_type: systemVerilogSource
+    - src/integration/asserts/caliptra_top_sva.sv:
+        file_type: systemVerilogSource
+    - src/integration/asserts/kv_boot_flow_sva.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/Axi4PC.sv:
+        file_type: systemVerilogSource
+    - src/entropy_src/tb/physical_rng.sv:
+        file_type: systemVerilogSource
+    - src/entropy_src/tb/physical_rng_deterministic.sv:
+        file_type: systemVerilogSource
+    - src/sha512/coverage/sha512_ctrl_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/sha512/coverage/sha512_ctrl_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/sha256/coverage/sha256_ctrl_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/sha256/coverage/sha256_ctrl_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/hmac/coverage/hmac_ctrl_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/hmac/coverage/hmac_ctrl_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/hmac_drbg/coverage/hmac_drbg_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/hmac_drbg/coverage/hmac_drbg_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/ecc/coverage/ecc_top_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/ecc/coverage/ecc_top_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/soc_ifc/coverage/soc_ifc_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/soc_ifc/coverage/soc_ifc_iccm_shadow_cov.sv:
+        file_type: systemVerilogSource
+    - src/soc_ifc/coverage/soc_ifc_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/coverage/pcrvault_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/coverage/pcrvault_cov_props.sv:
+        file_type: systemVerilogSource
+    - src/pcrvault/coverage/pcrvault_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/coverage/keyvault_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/coverage/keyvault_cov_props.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/coverage/kv_boot_flow_cov.sv:
+        file_type: systemVerilogSource
+    - src/keyvault/coverage/keyvault_cov_bind.sv:
+        file_type: systemVerilogSource
+    - submodules/adams-bridge/src/abr_top/coverage/abr_top_cov_if.sv:
+        file_type: systemVerilogSource
+    - submodules/adams-bridge/src/abr_top/coverage/abr_top_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/abr/coverage/clp_abr_top_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/abr/coverage/clp_abr_top_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/axi/coverage/axi_dma_top_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/axi/coverage/axi_dma_top_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/axi/coverage/axi_dma_top_cov_props.sv:
+        file_type: systemVerilogSource
+    - src/aes/coverage/aes_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/aes/coverage/aes_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/doe/coverage/doe_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/doe/coverage/doe_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/caliptra_top_tb_pkg.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/dma_testcase_generator.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/caliptra_veer_sram_export.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/caliptra_top_tb_services.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/caliptra_top_tb_soc_bfm.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/caliptra_top_tb_axi_complex.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/caliptra_top_tb_axi_fifo.sv:
+        file_type: systemVerilogSource
+    - src/integration/coverage/caliptra_top_cov_if.sv:
+        file_type: systemVerilogSource
+    - src/integration/coverage/caliptra_top_cov_props.sv:
+        file_type: systemVerilogSource
+    - src/integration/coverage/caliptra_top_cov_bind.sv:
+        file_type: systemVerilogSource
+    - src/integration/test_suites/libs/jtagdpi/jtagdpi.sv:
+        file_type: systemVerilogSource
+    - src/integration/tb/caliptra_top_tb.sv:
+        file_type: systemVerilogSource
+    tags:
+    - tb
+  tb_headers:
+    files:
+    - src/integration/tb/dasm.svi:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/integration/tb/dma_transfer_randomizer.sv:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/entropy_src/tb/entropy_src_tb.sv:
+        file_type: systemVerilogSource
+        is_include_file: true
+    tags:
+    - tb
+  vlt:
+    files:
+    - src/caliptra_prim/lint/caliptra_prim_onehot_check.vlt:
+        file_type: vlt
+    - src/caliptra_prim/lint/caliptra_prim_arbiter.vlt:
+        file_type: vlt
+    - src/csrng/lint/csrng.vlt:
+        file_type: vlt
+    - src/caliptra_prim/lint/caliptra_prim_max_tree.vlt:
+        file_type: vlt
+    - src/caliptra_prim/lint/caliptra_prim_sum_tree.vlt:
+        file_type: vlt
+  tb_cpp:
+    files:
+    - .booley_project/generated/test_caliptra_top_tb.cpp:
+        file_type: cppSource
+    - src/integration/test_suites/libs/jtagdpi/jtagdpi.c:
+        file_type: cSource
+    - src/integration/test_suites/libs/tcp_server/tcp_server.c:
+        file_type: cSource
+    - src/integration/test_suites/libs/jtagdpi/jtagdpi.h:
+        file_type: cSource
+        is_include_file: true
+    - src/integration/test_suites/libs/tcp_server/tcp_server.h:
+        file_type: cSource
+        is_include_file: true
+    tags:
+    - tb
+targets:
+  sim_caliptra:
+    flow: sim
+    flow_options:
+      tool: verilator
+      booley:
+        doctor:
+        - sim
+      verilator_options:
+      - +define+RV_OPENSOURCE
+      - +define+CALIPTRA_INTERNAL_TRNG
+      - +define+CALIPTRA_TOP_TB
+      - +define+CALIPTRA_TOP=caliptra_top_tb
+      - +define+RV_TOP=caliptra_top_tb.caliptra_top_dut.rvtop
+      - --timing
+      - --exe
+      - --timescale
+      - 1ns/100ps
+      - --autoflush
+      - -Wno-WIDTH
+      - -Wno-UNOPTFLAT
+      - -Wno-LITENDIAN
+      - -Wno-CMPCONST
+      - -Wno-MULTIDRIVEN
+      - -Wno-UNPACKED
+      - -Wno-LATCH
+      - -Wno-fatal
+    filesets:
+    - design
+    - tb
+    - tb_headers
+    - vlt
+    - tb_cpp
+    toplevel: caliptra_top_tb
+  lint_caliptra:
+    flow: lint
+    flow_options:
+      tool: verilator
+      booley:
+        doctor:
+        - lint
+      verilator_options:
+      - +define+RV_OPENSOURCE
+      - +define+CALIPTRA_INTERNAL_TRNG
+      - +define+CALIPTRA_TOP_TB
+      - +define+CALIPTRA_TOP=caliptra_top_tb
+      - +define+RV_TOP=caliptra_top_tb.caliptra_top_dut.rvtop
+      - --timing
+      - -Wno-WIDTH
+      - -Wno-UNOPTFLAT
+      - -Wno-LITENDIAN
+      - -Wno-CMPCONST
+      - -Wno-MULTIDRIVEN
+      - -Wno-UNPACKED
+      - -Wno-LATCH
+      - -Wno-fatal
+    filesets:
+    - design
+    - tb
+    - tb_headers
+    - vlt
+    toplevel: caliptra_top_tb

@@ -1,0 +1,10 @@
+# Marker: FuseSoC's library scanner (and Booley's discover_cores) skip any
+# directory carrying this file. .booley_project/ holds transient git
+# worktrees whose .core copies share the project's VLNV — without this
+# marker FuseSoC's recursive --cores-root scan would let a stale worktree
+# core shadow the repo-root source and silently build the wrong RTL.
+#
+# One subtree is exempt BY DESIGN: cores/ (stealth authored cores, ADR
+# 0036). Booley scans it as a second root, so this marker never applies
+# to it — do not drop a FUSESOC_IGNORE inside cores/ unless you mean to
+# hide those cores from Booley too.

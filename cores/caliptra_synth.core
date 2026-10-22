@@ -1,0 +1,89 @@
+CAPI=2:
+name: local:caliptra:booley_synth:1
+description: Caliptra top ASIC synthesis adapter
+filesets:
+  design:
+    depend:
+    - local:caliptra:rtl:1
+  synth_wrapper:
+    files:
+    - .booley_project/synth/caliptra_synth_wrapper.sv:
+        file_type: systemVerilogSource
+  tech_cells:
+    files:
+    - .booley_project/synth/nangate45_icg.sv:
+        file_type: systemVerilogSource
+  synth_memory:
+    files:
+    - .booley_project/synth/ecc_ram_tdp_timing_surrogate.sv:
+        file_type: systemVerilogSource
+  constraints:
+    files:
+    - .booley_project/synth/caliptra.sdc:
+        file_type: SDC
+targets:
+  synth_caliptra:
+    flow: generic
+    flow_options:
+      tool: yosys
+      arch: xilinx
+      frontend: slang
+      synth_mode: physical
+      ppa_profile: balanced
+      advanced_settings_yosys:
+        abc_recipe: fast
+      flatten: true
+      booley:
+        doctor:
+        - synth
+      slang_options:
+      - --single-unit
+    filesets:
+    - design
+    - synth_wrapper
+    - tech_cells
+    - synth_memory
+    - constraints
+    toplevel: caliptra_synth_wrapper
+    parameters:
+    - SYNTHESIS
+    - RV_OPENSOURCE
+    - CALIPTRA_INTERNAL_TRNG
+    - TECH_SPECIFIC_ICG
+    - USER_ICG
+    - TECH_SPECIFIC_EC_RV_ICG
+    - USER_EC_RV_ICG
+    - USER_ECC_RAM_TDP
+parameters:
+  SYNTHESIS:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  RV_OPENSOURCE:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  CALIPTRA_INTERNAL_TRNG:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  TECH_SPECIFIC_ICG:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  USER_ICG:
+    datatype: str
+    paramtype: vlogdefine
+    default: caliptra_nangate45_icg
+  TECH_SPECIFIC_EC_RV_ICG:
+    datatype: bool
+    paramtype: vlogdefine
+    default: true
+  USER_EC_RV_ICG:
+    datatype: str
+    paramtype: vlogdefine
+    default: veer_nangate45_icg
+  USER_ECC_RAM_TDP:
+    datatype: str
+    paramtype: vlogdefine
+    default: caliptra_ecc_ram_tdp_timing_surrogate

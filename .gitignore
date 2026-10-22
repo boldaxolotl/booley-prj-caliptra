@@ -1,0 +1,42 @@
+# Transient Booley state — do not commit.
+tmp/
+tickets/logs/
+tickets/locks/
+.interactive_logs/
+.runtime/
+runtime/
+worktrees/
+__pycache__/
+*.pyc
+SETUP-REPORT.md
+FEEDBACK-REPORT.md
+
+# Local setup and qualification evidence (large or machine-specific)
+SETUP-PLAN.md
+findings.jsonl
+*.log
+reports/
+runs/
+qualification/
+qualification_datavault_long/
+parity/native_sim/
+parity/adapter_setup/
+parity/fw_probe/
+synth/report/
+synth/dry-run.json
+
+selftest_probe/
+
+# Generated ASIC synthesis probes and local Booley source overlay.
+synth/booley-overlay/
+synth/probe/
+synth/evidence/
+synth/*-exit-code
+tickets/board/
+tickets/state/
+tickets/waiver-candidates/
+
+# Booley 0.3.0 Flow and baseline scratch.
+flow-reports/
+/logs/
+/.baseline-wt-*/
