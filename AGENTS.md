@@ -21,9 +21,8 @@
 
 ## Working on Another Branch or Commit (git worktrees)
 
-- To build or simulate another branch/commit without touching the workspace, do not run plain `git worktree add`, use an arbitrary path, or manually copy/symlink `.booley/`. A bare checkout lacks Booley state; the live state contains machine-specific runtime data.
-- The worktree helper is Sandbox package data at `booley/dev_support/worktree_create.sh`. Invoke it to create `.booley/worktrees/<name>` with a clean `.booley` snapshot:
-  `echo '{"name":"<name>","cwd":"'"$PWD"'"}' | bash "$(python -c 'import booley.dev_support, pathlib; print(pathlib.Path(booley.dev_support.__file__).parent / "worktree_create.sh")')"`
-  (a `<branch>--<description>` name checks out `<branch>`; otherwise the worktree is a detached HEAD at the current commit).
-- Pass `work_dir=<worktree path>` to a Flow (`sim`, `lint`, `synth`, ...) to use that checkout; omit it for the normal workspace. Either way, project config comes from the canonical project dir.
+- To build or simulate another branch/commit without touching the workspace, never use plain `git worktree add`, an arbitrary path, or copy/symlink `.booley/`. A bare checkout lacks Booley state; the live state contains machine-specific runtime data.
+- Commit Project changes, then run `booley worktree new <name>` inside the Sandbox from the workspace root (`--help` explains naming). It creates `.booley/worktrees/<name>` with a clean `.booley` snapshot, prints the path, and refuses a name whose destination already exists.
+- Pass `work_dir=<worktree path>` to a Flow (`sim`, `lint`, `synth`, ...) to use that checkout; omit it for the normal workspace. Either way, project config comes from the canonical Booley Directory.
+- To remove a worktree, follow the steps the command printed; when it printed none, run `git worktree remove <worktree path>`.
 - For synthesis/implementation QoR against a past commit, prefer `synth`/`fpga`'s built-in `--baseline <git ref>` over a manual worktree.
