@@ -104,6 +104,9 @@ of them fails that review even when every Goal here is met:
   hierarchical path (`src/integration/tb/caliptra_top_tb_services.sv`), so
   renaming or removing an internal signal can break the chip build even
   when `sim_ecc` passes. Pass `timeout_ms: 3600000` to chip `sim` calls.
+- `sim` and `synth` share one heavy slot and hand back a `run_id` after about
+  4 minutes; see AGENTS.md § Long-Running Flows for running the long ones in
+  the background.
 
 ## Goal arguments
 

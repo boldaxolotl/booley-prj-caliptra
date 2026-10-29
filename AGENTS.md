@@ -17,7 +17,14 @@
 - Only if `booley_status` is absent from that MCP tool list are you on the host, where the tools were never registered and nothing is broken. Point the user to "Reopen in Container" (or `booley session up && booley session enter`); do not substitute raw EDA commands.
 - At the start of an Interactive Mode tab, call `booley_status` and display its returned status block.
 - RISC-V reference docs (keep only for `[sandbox].image = "booley-sandbox-riscv"`) live at `$BOOLEY_RISCV_DOCS` (`/opt/riscv-docs`): offline ISA HTML/PDF, debug specification, and ELF psABI. Start with `$BOOLEY_RISCV_DOCS/INDEX.md`; search HTML directly or extract PDFs with `pdftotext <file.pdf> -`.
-- Use Booley Specialists for deeper RTL work: `coverage_analyst` and `mutation_tester` when requested or useful. `reviewer` is enabled.
+- Use Booley Specialists for deeper RTL work: `coverage_analyst` and `mutation_tester` when requested or useful. `reviewer` is disabled.
+
+## Long-Running Flows
+
+- A `sim` or `synth` call holds the turn for up to about 4 minutes, then returns a `run_id` and keeps running in the background. Get its result with `booley_poll` and that `run_id`: `wait_seconds: 0` answers at once, up to 270 blocks until the run finishes. `booley_cancel` stops a job.
+- Long jobs here: `synth_ecc_top` (~14 min), a full `sim_ecc` regression (~7 min), the `ECC_normal_test+one` coverage run (~13 min), and `smoke_test_ecdh` on `sim_caliptra` (~20 min with its build). Once one returns its `run_id`, keep working: read code, prepare the next change, run `lint`, and check on the job with `booley_poll` `wait_seconds: 0` between steps.
+- Do not wait with `sleep` in Bash, and do not chain long polls while other work is left. Long-poll only when the job's result is the next thing you need.
+- Every `sim` and `synth` run, including quick `+one` sims and `synth_ecc_fau`, takes the one heavy slot (`[jobs] max_heavy = 1`): a second call reports `QUEUED` and starts only when the running one ends. Order them on purpose: start the long job whose result you need next, run quick sims between long jobs rather than under them, and never queue `synth_ecc_top` and the coverage run back to back unless you need both.
 
 ## Working on Another Branch or Commit (git worktrees)
 
