@@ -32,7 +32,8 @@ enabled = true
 # Full mapped placement and STA can exceed 90 minutes under shared CPU load.
 timeout_ms = 7200000
 
-# Reviewer Specialist enabled: Goalsets such as goalsets/ecc-area.md require
-# REVIEW Goals, which only the Reviewer can meet.
+# Reviewer Specialist disabled: design review is out of scope for the
+# ecc-area task (an independent reviewer grades the result instead), and it
+# cost ~18 min and ~$2-3 per trial, once hitting its turn limit after 650 s.
 [specialists.reviewer]
-enabled = true
+enabled = false

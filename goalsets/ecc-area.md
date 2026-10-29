@@ -31,19 +31,43 @@ is mandatory.
   chip-level firmware tests pass. They are a quick check of the chip-level
   ECC tests, not all of them.
 - `LINT:lint_ecc`: the ECC RTL lints clean.
-- `REVIEW:rtl_bugs` on the ECC RTL below and `REVIEW:tb_quality` on the
-  ECC testbench: both finish `clean` (no open findings).
 
-The RTL you may change is the hand-written ECC RTL listed in the
-`REVIEW:rtl_bugs` Goal: everything in `src/ecc/rtl/` except the generated
-register block (`ecc_reg.sv`, `ecc_reg_pkg.sv`) and the operand RAM
-(`ecc_ram_tdp_file.sv`). You may also improve the testbench
-`src/ecc/tb/ecc_top_tb.sv`, but not weaken any existing check.
+The RTL you may change is the hand-written ECC RTL: everything in
+`src/ecc/rtl/` except the generated register block (`ecc_reg.sv`,
+`ecc_reg_pkg.sv`, `ecc_reg_uvm.sv`) and the operand RAM
+(`ecc_ram_tdp_file.sv`). These 20 files:
+
+<!-- editable-rtl:begin -->
+- `src/ecc/rtl/ecc_add_sub_mod_alter.sv`
+- `src/ecc/rtl/ecc_adder.sv`
+- `src/ecc/rtl/ecc_arith_unit.sv`
+- `src/ecc/rtl/ecc_defines_pkg.sv`
+- `src/ecc/rtl/ecc_dsa_ctrl.sv`
+- `src/ecc/rtl/ecc_dsa_sequencer.sv`
+- `src/ecc/rtl/ecc_dsa_uop_pkg.sv`
+- `src/ecc/rtl/ecc_fau.sv`
+- `src/ecc/rtl/ecc_hmac_drbg_interface.sv`
+- `src/ecc/rtl/ecc_montgomerymultiplier.sv`
+- `src/ecc/rtl/ecc_mult_dsp.sv`
+- `src/ecc/rtl/ecc_params_pkg.sv`
+- `src/ecc/rtl/ecc_pe.sv`
+- `src/ecc/rtl/ecc_pe_final.sv`
+- `src/ecc/rtl/ecc_pe_first.sv`
+- `src/ecc/rtl/ecc_pm_ctrl.sv`
+- `src/ecc/rtl/ecc_pm_sequencer.sv`
+- `src/ecc/rtl/ecc_pm_uop_pkg.sv`
+- `src/ecc/rtl/ecc_scalar_blinding.sv`
+- `src/ecc/rtl/ecc_top.sv`
+<!-- editable-rtl:end -->
+
+You may also improve the testbench `src/ecc/tb/ecc_top_tb.sv`, but not weaken
+any existing check.
 
 ## Off-limits
 
-These are part of the task's definition, not levers. Changing any of them
-fails the review even when every other Goal is met:
+These are part of the task's definition, not levers. The final design is
+also checked by an independent design review outside Goal Mode; changing any
+of them fails that review even when every Goal here is met:
 
 - SHA-512 masking in the HMAC-DRBG path and its randomness.
 - Scalar blinding and `RND_SIZE`.
@@ -158,41 +182,6 @@ fails the review even when every other Goal is met:
   {
     "family": "LINT",
     "target": "lint_ecc",
-    "origin": "ecc-area"
-  },
-  {
-    "family": "REVIEW",
-    "review": "rtl_bugs",
-    "verdict": "clean",
-    "paths": [
-      "src/ecc/rtl/ecc_add_sub_mod_alter.sv",
-      "src/ecc/rtl/ecc_adder.sv",
-      "src/ecc/rtl/ecc_arith_unit.sv",
-      "src/ecc/rtl/ecc_defines_pkg.sv",
-      "src/ecc/rtl/ecc_dsa_ctrl.sv",
-      "src/ecc/rtl/ecc_dsa_sequencer.sv",
-      "src/ecc/rtl/ecc_dsa_uop_pkg.sv",
-      "src/ecc/rtl/ecc_fau.sv",
-      "src/ecc/rtl/ecc_hmac_drbg_interface.sv",
-      "src/ecc/rtl/ecc_montgomerymultiplier.sv",
-      "src/ecc/rtl/ecc_mult_dsp.sv",
-      "src/ecc/rtl/ecc_params_pkg.sv",
-      "src/ecc/rtl/ecc_pe.sv",
-      "src/ecc/rtl/ecc_pe_final.sv",
-      "src/ecc/rtl/ecc_pe_first.sv",
-      "src/ecc/rtl/ecc_pm_ctrl.sv",
-      "src/ecc/rtl/ecc_pm_sequencer.sv",
-      "src/ecc/rtl/ecc_pm_uop_pkg.sv",
-      "src/ecc/rtl/ecc_scalar_blinding.sv",
-      "src/ecc/rtl/ecc_top.sv"
-    ],
-    "origin": "ecc-area"
-  },
-  {
-    "family": "REVIEW",
-    "review": "tb_quality",
-    "verdict": "clean",
-    "paths": ["src/ecc/tb/ecc_top_tb.sv"],
     "origin": "ecc-area"
   }
 ]
