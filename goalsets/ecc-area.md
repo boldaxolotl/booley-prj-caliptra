@@ -25,18 +25,20 @@ is mandatory.
 - `COVERAGE:sim_ecc`: on `ECC_normal_test+one` (all four operations on the
   first vector), line, branch and toggle coverage of the Target's RTL stay
   within 2 points of the baseline (98.58 / 77.19 / 88.98 %).
-- `MUTATION:sim_ecc`: of 10 mutants of the ECC RTL below, the testbench
-  detects at least 9.
+- `SIM:sim_caliptra` for each of `smoke_test_ecdh`,
+  `smoke_test_zeroize_crypto` and `smoke_test_kv_len_mismatch_ecc`: the
+  whole Caliptra chip still builds with the changed ECC engine and these
+  chip-level firmware tests pass. They are a quick check of the chip-level
+  ECC tests, not all of them.
 - `LINT:lint_ecc`: the ECC RTL lints clean.
 - `REVIEW:rtl_bugs` on the ECC RTL below and `REVIEW:tb_quality` on the
   ECC testbench: both finish `clean` (no open findings).
 
-The RTL you may change is the hand-written ECC RTL listed in the `MUTATION`
-and `REVIEW:rtl_bugs` Goals: everything in `src/ecc/rtl/` except the generated
+The RTL you may change is the hand-written ECC RTL listed in the
+`REVIEW:rtl_bugs` Goal: everything in `src/ecc/rtl/` except the generated
 register block (`ecc_reg.sv`, `ecc_reg_pkg.sv`) and the operand RAM
 (`ecc_ram_tdp_file.sv`). You may also improve the testbench
-`src/ecc/tb/ecc_top_tb.sv`, for example to detect more mutants, but not weaken
-any existing check.
+`src/ecc/tb/ecc_top_tb.sv`, but not weaken any existing check.
 
 ## Off-limits
 
@@ -71,6 +73,13 @@ fails the review even when every other Goal is met:
 - `synth_ecc_top` takes about 14 minutes and `synth_ecc_fau` about 2.
 - A coverage run of `ECC_normal_test+one` takes about 13 minutes;
   coverage is about 16 times slower than plain simulation.
+- The chip Target `sim_caliptra` builds the full Caliptra chip testbench
+  (about 6 minutes, reused while the RTL is unchanged) and each test's
+  firmware. `smoke_test_ecdh` then runs about 15 minutes, the other two
+  about a minute each. The chip testbench reaches into ECC internals by
+  hierarchical path (`src/integration/tb/caliptra_top_tb_services.sv`), so
+  renaming or removing an internal signal can break the chip build even
+  when `sim_ecc` passes. Pass `timeout_ms: 3600000` to chip `sim` calls.
 
 ## Goal arguments
 
@@ -129,32 +138,21 @@ fails the review even when every other Goal is met:
     "origin": "ecc-area"
   },
   {
-    "family": "MUTATION",
-    "target": "sim_ecc",
-    "scope": [
-      "src/ecc/rtl/ecc_add_sub_mod_alter.sv",
-      "src/ecc/rtl/ecc_adder.sv",
-      "src/ecc/rtl/ecc_arith_unit.sv",
-      "src/ecc/rtl/ecc_defines_pkg.sv",
-      "src/ecc/rtl/ecc_dsa_ctrl.sv",
-      "src/ecc/rtl/ecc_dsa_sequencer.sv",
-      "src/ecc/rtl/ecc_dsa_uop_pkg.sv",
-      "src/ecc/rtl/ecc_fau.sv",
-      "src/ecc/rtl/ecc_hmac_drbg_interface.sv",
-      "src/ecc/rtl/ecc_montgomerymultiplier.sv",
-      "src/ecc/rtl/ecc_mult_dsp.sv",
-      "src/ecc/rtl/ecc_params_pkg.sv",
-      "src/ecc/rtl/ecc_pe.sv",
-      "src/ecc/rtl/ecc_pe_final.sv",
-      "src/ecc/rtl/ecc_pe_first.sv",
-      "src/ecc/rtl/ecc_pm_ctrl.sv",
-      "src/ecc/rtl/ecc_pm_sequencer.sv",
-      "src/ecc/rtl/ecc_pm_uop_pkg.sv",
-      "src/ecc/rtl/ecc_scalar_blinding.sv",
-      "src/ecc/rtl/ecc_top.sv"
-    ],
-    "total": 10,
-    "min_detected": 9,
+    "family": "SIM",
+    "target": "sim_caliptra",
+    "test": "smoke_test_ecdh",
+    "origin": "ecc-area"
+  },
+  {
+    "family": "SIM",
+    "target": "sim_caliptra",
+    "test": "smoke_test_zeroize_crypto",
+    "origin": "ecc-area"
+  },
+  {
+    "family": "SIM",
+    "target": "sim_caliptra",
+    "test": "smoke_test_kv_len_mismatch_ecc",
     "origin": "ecc-area"
   },
   {
