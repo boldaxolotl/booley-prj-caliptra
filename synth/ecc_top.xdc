@@ -3,7 +3,8 @@
 # 20 ns clk and 0 ns I/O budgets. The ASIC-only set_max_fanout workaround has
 # no FPGA meaning and is left out.
 #
-# The input budget is a setup (-max) budget only. With a 0 ns minimum input
+# The input budget is a setup (-max) budget only (maintainer-approved
+# deviation from ecc_top.sdc). With a 0 ns minimum input
 # delay, every input port that feeds a flop directly fails hold by about
 # 0.08 ns, because the capture clock reaches the flop through the clock tree
 # and the out-of-context input has no routing delay to match. That check

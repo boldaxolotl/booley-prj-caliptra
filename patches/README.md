@@ -9,14 +9,27 @@ git switch -c booley
 git am .booley/patches/*.patch
 ```
 
+and one on top of its `adams-bridge` submodule at `2f15ffb1`, the commit
+Caliptra pins. Apply it inside the submodule, then record the patched commit
+in Caliptra so Booley's baseline checkouts and worktrees use it:
+
+```bash
+git -C submodules/adams-bridge switch -c booley
+git -C submodules/adams-bridge am "$PWD"/.booley/patches/adams-bridge/*.patch
+git commit -m "Point adams-bridge at the Verilator 5.054 fix" submodules/adams-bridge
+```
+
 None of them changes RTL behavior. Patches 0001 and 0002 let the registered
 firmware tests in `tests.toml` build and pass; 0003 and 0004 let `synth_caliptra`
 run and reproduce [`synth/ASIC-REPORT.md`](../synth/ASIC-REPORT.md); 0005 gives
-`sim_ecc` its per-operation tests. Each patch's commit message repeats its
+`sim_ecc` its per-operation tests; 0006 lets Verilator 5.054 build
+`sim_caliptra` and `lint_caliptra`. Each patch's commit message repeats its
 explanation.
 
-As of upstream `main` at `7b901d59` (2026-10-08), none of these issues is fixed
-upstream.
+As of upstream `main` at `f2d4641c` (2026-11-14), none of these issues is fully
+fixed upstream: `main` has the `kv_aes_flow()` return type from 0001 but not
+the rest of it, and its `adams-bridge` (`753d4d4c`) still has the code 0006
+changes.
 
 ## 0001 – Fix firmware test build errors
 
@@ -111,3 +124,25 @@ zeroize, fault check) still runs after every test, and the testbench still
 exits 0 and reports through `* TESTCASE PASSED` or `* TESTCASE FAILED`.
 
 Test-only change; no RTL is touched.
+
+## 0006 – Size the PISO rate patterns to `NUM_MODES` under Verilator
+
+**Needed for:** `sim` (`sim_caliptra`), `lint` (`lint_caliptra`)
+
+**Applies to:** the `adams-bridge` submodule (`patches/adams-bridge/`)
+
+`src/compress/rtl/compress_top.sv` and `src/decompress/rtl/decompress_top.sv`
+instantiate `abr_piso_multi` with `NUM_MODES(4)`, but under
+`` `ifdef VERILATOR `` they pass five-element `INPUT_RATES` and `OUTPUT_RATES`
+patterns (`'{..., 0}`). That branch worked around an older Verilator
+(`adams-bridge` commit `ab4a822`, "Fix verilator build for Caliptra").
+Verilator 5.054, which Booley's Sandbox ships, rejects it:
+
+```text
+%Error: Assignment pattern with too many elements
+```
+
+The patch drops the Verilator-only branch, so every tool gets the
+four-element patterns the other tools already use. The fifth element was never
+read: `mode` is `$clog2(NUM_MODES)` = 2 bits wide, so it indexes only entries
+0 to 3. Behavior is unchanged.

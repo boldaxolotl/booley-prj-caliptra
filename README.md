@@ -11,7 +11,7 @@ It is tested with Caliptra RTL commit
 [`e379800c`](https://github.com/chipsalliance/caliptra-rtl/commit/e379800c5467379386f96a9a51a539bd662b608a)
 and Booley 0.4.0 at commit
 [`2110cb55`](https://github.com/boldaxolotl/Booley/commit/2110cb55618b0bd240d498377ec8dbbcd2f04d5f)
-(the 0.5.0 release candidate); see [Known issues](#known-issues-at-the-tested-booley-commit).
+(the 0.5.0 release candidate); see [Known issue](#known-issue-at-the-tested-booley-commit).
 
 ## Quick start
 
@@ -32,6 +32,16 @@ Apply the small Caliptra patches this project needs (see [Patches](#patches)):
 ```bash
 git switch -c booley
 git am .booley/patches/*.patch
+```
+
+One more patch is for the `adams-bridge` submodule. Apply it inside the
+submodule, then record the patched submodule commit in Caliptra, so Booley's
+baseline checkouts and worktrees get it too:
+
+```bash
+git -C submodules/adams-bridge switch -c booley
+git -C submodules/adams-bridge am "$PWD"/.booley/patches/adams-bridge/*.patch
+git commit -m "Point adams-bridge at the Verilator 5.054 fix" submodules/adams-bridge
 ```
 
 Give this project's checkout the same branch name, so Booley pairs the two
@@ -104,30 +114,23 @@ Start a chat in the container with `booley` and ask, for example:
 > Run smoke_test_mbox with a waveform trace, then use B-Wave to show me the
 > first mailbox write from the firmware.
 
-## Known issues at the tested Booley commit
+## Known issue at the tested Booley commit
 
-- **`sim_caliptra` and `lint_caliptra` do not build.** Booley's Sandbox now
-  ships Verilator 5.054, which rejects four parameter overrides in the
-  `adams-bridge` submodule: inside `` `ifdef VERILATOR ``,
-  `compress_top.sv` and `decompress_top.sv` pass five-element
-  `INPUT_RATES`/`OUTPUT_RATES` patterns to `abr_piso_multi` with
-  `NUM_MODES(4)` (`%Error: Assignment pattern with too many elements`). So
-  `booley doctor --deep` fails its `sim_caliptra` and `lint_caliptra` checks
-  and self-tests. The block-level ECC Targets are not affected.
-- **An `fpga` run started with `booley session enter` stalls after synthesis.**
-  The build stops making progress after Vivado prints `Synthesis finished`:
-  Vivado's parallel synthesis workers exit, but the Sandbox command supervisor
-  never reaps them, and Vivado waits on them. Until
-  [boldaxolotl/booley#4048](https://github.com/boldaxolotl/booley/issues/4048)
-  is fixed, start the command under a process reaper:
+An `fpga` run started with `booley session enter` stalls after synthesis. The
+build stops making progress after Vivado prints `Synthesis finished`:
+Vivado's parallel synthesis workers exit, but the Sandbox command supervisor
+never reaps them, and Vivado waits on them. Until
+[boldaxolotl/booley#4048](https://github.com/boldaxolotl/booley/issues/4048)
+is fixed, start the command under a process reaper:
 
-  ```bash
-  booley session enter -- /sbin/docker-init -s -- booley flow fpga --target fpga_ecc_top
-  ```
+```bash
+booley session enter -- /sbin/docker-init -s -- booley flow fpga --target fpga_ecc_top
+```
 
 ## Patches
 
-`patches/` holds five commits for the Caliptra checkout. None changes RTL
+`patches/` holds five commits for the Caliptra checkout and, in
+`patches/adams-bridge/`, one for its `adams-bridge` submodule. None changes RTL
 behavior.
 
 | Patch | Needed for | What it does |
@@ -137,11 +140,13 @@ behavior.
 | `0003-axi-dma-default-case-arm.patch` | `synth` | Adds an unreachable `default` arm so the Yosys Slang frontend does not infer a combinational loop |
 | `0004-ecc-ram-synthesis-hook.patch` | `synth` | Lets synthesis swap the ECC operand RAM for a timing surrogate; inactive unless `USER_ECC_RAM_TDP` is defined |
 | `0005-ecc-top-tb-per-operation-tests.patch` | `sim` (`sim_ecc`) | Adds per-operation tests, `+ECC_NUM_VECTORS`, and `[SIM_CYCLES]` cycle reports to the ECC block testbench |
+| `adams-bridge/0006-piso-rate-patterns-for-verilator.patch` | `sim`, `lint` (`sim_caliptra`, `lint_caliptra`) | Drops an old Verilator-only branch whose five-element rate patterns Verilator 5.054 rejects |
 
 Without them, the affected tests fail to build, synthesis reports a
-combinational loop, the ECC RAM is synthesized as flops, and `sim_ecc` has no
-per-operation tests. None is fixed on
-upstream `main` at `7b901d59` (2026-10-08).
+combinational loop, the ECC RAM is synthesized as flops, `sim_ecc` has no
+per-operation tests, and Verilator 5.054 stops `sim_caliptra` and `lint_caliptra`
+with `Assignment pattern with too many elements`. None is fully fixed on
+upstream `main` at `f2d4641c` (2026-11-14), whose `adams-bridge` is `753d4d4c`.
 [`patches/README.md`](patches/README.md) explains each patch in detail, and
 each commit message repeats its explanation.
 
@@ -165,8 +170,9 @@ in `.core` files are relative to the Caliptra root.
 | `generated/test_caliptra_top_tb.cpp` | Upstream Verilator `main()` with per-test plusargs and Booley trace-file support (generated) |
 | `scripts/` | Generators for the files above, plus `build_firmware.sh`, which builds each test's firmware before simulation |
 | `synth/` | ASIC synthesis wrappers, clock-gate and RAM adapters, SDCs, the `fpga_ecc_top` XDC and SystemVerilog shim, and [`ASIC-REPORT.md`](synth/ASIC-REPORT.md) |
+| `lint/` | Project Verilator waiver for one upstream assertion; `generate_core.py` adds it to `sim_caliptra` and `lint_caliptra` |
 | `selftest/` | Bad-input fixtures for Doctor's fail-path checks |
-| `patches/` | Caliptra patches and their [explanations](patches/README.md) |
+| `patches/` | Caliptra and `adams-bridge` patches and their [explanations](patches/README.md) |
 | `doctor-waivers.toml` | Reviewed Doctor waiver for the known synthesis hold-slack warning |
 | `runs/sim/` | Simulation working directory; its contents are ignored |
 
@@ -188,7 +194,8 @@ the test suite changes. Update its exclusion lists after checking the new tests.
 ## Notes
 
 - The project runs in stealth mode: `.booley/` is its own Git
-  repository, and Caliptra's history gains only the patch commits above.
+  repository, and Caliptra's history gains only the patch commits above
+  plus the commit that records the patched `adams-bridge`.
 - The `reviewer` Specialist is disabled in `booley.toml`.
 - Synthesis results are prototype numbers (ideal clocks, no SRAM macros, no
   hold repair). The Booley 0.3.0 rerun completed in 42 minutes with the
