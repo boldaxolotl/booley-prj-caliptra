@@ -1,0 +1,61 @@
+From 10ac0eb454884986f40d08854b7e6c3162abd568 Mon Sep 17 00:00:00 2001
+From: "A.R." <boldaxolotl@proton.me>
+Date: Sat, 14 Nov 2026 00:00:00 +0000
+Subject: [PATCH] Size the PISO rate patterns to NUM_MODES under Verilator
+
+compress_top and decompress_top instantiate abr_piso_multi with
+NUM_MODES(4), but under `ifdef VERILATOR they pass five-element
+INPUT_RATES and OUTPUT_RATES patterns ('{..., 0}). That branch worked
+around an older Verilator (ab4a822, "Fix verilator build for
+Caliptra"). Verilator 5.054, which Booley's Sandbox ships, rejects it:
+
+  %Error: Assignment pattern with too many elements
+
+Drop the Verilator-only branch so every tool gets the four-element
+patterns the other tools already use. The fifth element was never read:
+mode is $clog2(NUM_MODES) = 2 bits wide, so it indexes only entries 0-3.
+Behavior is unchanged.
+---
+ src/compress/rtl/compress_top.sv     | 5 -----
+ src/decompress/rtl/decompress_top.sv | 5 -----
+ 2 files changed, 10 deletions(-)
+
+diff --git a/src/compress/rtl/compress_top.sv b/src/compress/rtl/compress_top.sv
+index 985a06a..ab1aa99 100644
+--- a/src/compress/rtl/compress_top.sv
++++ b/src/compress/rtl/compress_top.sv
+@@ -141,13 +141,8 @@ module compress_top
+         .PISO_BUFFER_W(72),
+         .PISO_ACT_INPUT_RATE(48),
+         .PISO_ACT_OUTPUT_RATE(32),
+-        `ifdef VERILATOR
+-        .INPUT_RATES('{4, 20, 44, 48, 0}),
+-        .OUTPUT_RATES('{32, 32, 32, 32, 0})
+-        `else
+         .INPUT_RATES('{4, 20, 44, 48}),
+         .OUTPUT_RATES('{32, 32, 32, 32})
+-        `endif
+     ) abr_piso_inst (
+         .clk(clk),
+         .rst_b(reset_n),
+diff --git a/src/decompress/rtl/decompress_top.sv b/src/decompress/rtl/decompress_top.sv
+index e7c0f72..ef63b73 100644
+--- a/src/decompress/rtl/decompress_top.sv
++++ b/src/decompress/rtl/decompress_top.sv
+@@ -93,13 +93,8 @@ module decompress_top
+         .PISO_BUFFER_W(104),
+         .PISO_ACT_INPUT_RATE(64),
+         .PISO_ACT_OUTPUT_RATE(48),
+-        `ifdef VERILATOR
+-        .INPUT_RATES('{64, 64, 64, 64, 0}),
+-        .OUTPUT_RATES('{4, 20, 44, 48, 0})
+-        `else
+         .INPUT_RATES('{64, 64, 64, 64}),
+         .OUTPUT_RATES('{4, 20, 44, 48})
+-        `endif
+     ) abr_piso_inst (
+         .clk(clk),
+         .rst_b(reset_n),
+-- 
+2.53.0
+

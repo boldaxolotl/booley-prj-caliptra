@@ -165,7 +165,10 @@ def main() -> None:
                         .splitlines()
                         if line.strip() and not line.lstrip().startswith("//")
                     )
-                ],
+                ]
+                # Project waiver for a Verilator 5.054 warning in upstream
+                # SVA; see the file's header.
+                + [{".booley/lint/caliptra_top_sva.vlt": {"file_type": "vlt"}}],
             },
             # Patched Verilator main (see generate_main.py) plus the JTAG
             # DPI and TCP server C sources the upstream TB links in.

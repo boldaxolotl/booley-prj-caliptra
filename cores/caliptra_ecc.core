@@ -60,8 +60,6 @@ filesets:
         file_type: systemVerilogSource
     - src/libs/rtl/ahb_to_reg_adapter.sv:
         file_type: systemVerilogSource
-    - src/libs/rtl/skidbuffer.v:
-        file_type: verilogSource
     - src/caliptra_prim/rtl/caliptra_prim_util_pkg.sv:
         file_type: systemVerilogSource
     - src/caliptra_prim/rtl/caliptra_prim_alert_pkg.sv:
@@ -272,14 +270,6 @@ filesets:
         file_type: systemVerilogSource
     - src/sha512/rtl/sha512.sv:
         file_type: systemVerilogSource
-    - src/sha512/rtl/sha512_core.v:
-        file_type: verilogSource
-    - src/sha512/rtl/sha512_h_constants.v:
-        file_type: verilogSource
-    - src/sha512/rtl/sha512_k_constants.v:
-        file_type: verilogSource
-    - src/sha512/rtl/sha512_w_mem.v:
-        file_type: verilogSource
     - src/sha512/rtl/sha512_reg.sv:
         file_type: systemVerilogSource
     - src/sha512_masked/rtl/sha512_masked_defines_pkg.sv:
@@ -348,6 +338,22 @@ filesets:
         file_type: systemVerilogSource
     - src/ecc/rtl/ecc_adder.sv:
         file_type: systemVerilogSource
+  ecc_rtl_verilog:
+    # The .v files of src/ecc/config/ecc_top.vf. Upstream writes them in
+    # SystemVerilog; Verilator and yosys-slang read them as such, but Booley's
+    # fpga Flow reads every .v file as Verilog 2001, so fpga_ecc_top leaves
+    # this fileset out and takes the two it needs from fpga_sha512_constants.
+    files:
+    - src/libs/rtl/skidbuffer.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_core.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_h_constants.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_k_constants.v:
+        file_type: verilogSource
+    - src/sha512/rtl/sha512_w_mem.v:
+        file_type: verilogSource
   ecc_tb:
     files:
     - src/integration/rtl/caliptra_reg/caliptra_reg_defines.svh:
@@ -396,6 +402,24 @@ filesets:
     files:
     - .booley/synth/ecc_top.sdc:
         file_type: SDC
+  fpga_sha512_constants:
+    # fpga_ecc_top only: hmac_drbg's SHA-512 core instantiates the two
+    # constant tables, which are SystemVerilog in .v files. The shim includes
+    # them so Vivado parses them as SystemVerilog. The other ecc_rtl_verilog
+    # modules (sha512_core, sha512_w_mem, skidbuffer) are not under ecc_top.
+    files:
+    - src/sha512/rtl/sha512_h_constants.v:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - src/sha512/rtl/sha512_k_constants.v:
+        file_type: systemVerilogSource
+        is_include_file: true
+    - .booley/synth/sha512_constants_sv_shim.sv:
+        file_type: systemVerilogSource
+  fpga_constraints:
+    files:
+    - .booley/synth/ecc_top.xdc:
+        file_type: xdc
 targets:
   # Upstream ecc_top_tb on Verilator. Tests (tests.toml): one operation per
   # Test (keygen, sign, verify, ecdh) plus otf_reset, each over the 10
@@ -428,6 +452,7 @@ targets:
       - -Wno-SIDEEFFECT
     filesets:
     - ecc_rtl
+    - ecc_rtl_verilog
     - ecc_tb
     - ecc_tb_cpp
     - ecc_tb_vectors
@@ -448,6 +473,7 @@ targets:
       - -Wno-CMPCONST
     filesets:
     - ecc_rtl
+    - ecc_rtl_verilog
     toplevel: ecc_top
   # Goal A: ecc_top with the operand RAM replaced by the fixed synthesis
   # stand-in (synth/ecc_ram_tdp_timing_surrogate.sv). Same recipe as
@@ -467,6 +493,7 @@ targets:
       - --single-unit
     filesets:
     - ecc_rtl
+    - ecc_rtl_verilog
     - tech_cells
     - synth_memory
     - constraints
@@ -479,6 +506,36 @@ targets:
     - USER_ICG
     - TECH_SPECIFIC_EC_RV_ICG
     - USER_EC_RV_ICG
+    - USER_ECC_RAM_TDP
+  # ecc_top on an AMD Kintex UltraScale+ KU5P (a part the free Vivado
+  # Standard edition covers) for routed LUT/FF/DSP counts and timing. Same
+  # RTL, operand-RAM stand-in, and defines as synth_ecc_top, minus the
+  # Nangate45 clock-gate cells and ICG defines: no module under ecc_top
+  # instantiates a clock gate, so they only matter to the ASIC Targets. The
+  # stand-in stays because the real ecc_ram_tdp_file clears every word on
+  # reset, which no FPGA block RAM supports. Out of context: ecc_top has more
+  # ports than the package has pins. The .v files come through
+  # fpga_sha512_constants instead of ecc_rtl_verilog (see there). Clock in
+  # synth/ecc_top.xdc (clk 20 ns).
+  fpga_ecc_top:
+    flow: generic
+    flow_options:
+      tool: vivado
+      booley:
+        doctor:
+        - fpga
+      part: xcku5p-ffvb676-2-e
+      out_of_context: true
+    filesets:
+    - ecc_rtl
+    - fpga_sha512_constants
+    - synth_memory
+    - fpga_constraints
+    toplevel: ecc_top
+    parameters:
+    - SYNTHESIS
+    - RV_OPENSOURCE
+    - CALIPTRA_INTERNAL_TRNG
     - USER_ECC_RAM_TDP
   # Goal B: the field arithmetic unit (Montgomery multiplier + modular
   # adder) through synth/ecc_fau_synth_wrapper.sv, which instantiates ecc_fau
@@ -498,6 +555,7 @@ targets:
       - --single-unit
     filesets:
     - ecc_rtl
+    - ecc_rtl_verilog
     - fau_wrapper
     - constraints
     toplevel: ecc_fau_synth_wrapper

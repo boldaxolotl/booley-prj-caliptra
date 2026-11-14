@@ -132,6 +132,8 @@ filesets:
         file_type: vlt
     - src/caliptra_prim/lint/caliptra_prim_sum_tree.vlt:
         file_type: vlt
+    - .booley/lint/caliptra_top_sva.vlt:
+        file_type: vlt
   tb_cpp:
     files:
     - .booley/generated/test_caliptra_top_tb.cpp:

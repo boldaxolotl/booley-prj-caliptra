@@ -9,8 +9,16 @@ auth = "subscription"
 image = "booley-sandbox-riscv"
 memory = "28g"
 
-[jobs]
-heavy_memory = "22g"
+# Vivado is not in the Sandbox Image: the host administrator registers a
+# Vivado 2025.2 installation and grants it to this Project with `booley eda`
+# (see Booley's SANDBOX.md, "Commercial EDA provisioning"), and Booley mounts
+# it read-only into the Sandbox.
+[eda.vivado]
+provisioning = "host"
+
+# Seat Cap: at most one Vivado build at a time; a second fpga run waits.
+[jobs.seats]
+vivado = 1
 
 [stealth]
 enabled = true
@@ -31,6 +39,11 @@ timeout_ms = 900000
 enabled = true
 # Full mapped placement and STA can exceed 90 minutes under shared CPU load.
 timeout_ms = 7200000
+
+[flows.fpga]
+enabled = true
+# fpga_ecc_top: out-of-context Vivado build of ecc_top on a KU5P.
+timeout_ms = 3600000
 
 # Reviewer Specialist disabled: design review is out of scope for the
 # ecc-area task (an independent reviewer grades the result instead), and it

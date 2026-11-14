@@ -1,0 +1,12 @@
+// Project waiver for lint_caliptra and sim_caliptra (listed after upstream's
+// .vlt files by scripts/generate_core.py).
+//
+// With 5.054, Verilator warns SIDEEFFECT on the KV debug-flush assertion: its
+// property calls check_kv_slot_debug_value(), which $displays the failing
+// dword before returning. The $display is the only side effect, and it only
+// reports; it does not change what the property checks.
+
+`verilator_config
+
+// It is the only SIDEEFFECT in the file, so the waiver covers the file.
+lint_off -rule SIDEEFFECT -file "*/src/integration/asserts/caliptra_top_sva.sv"
